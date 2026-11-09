@@ -2,8 +2,6 @@ import { useEffect, useRef, useState } from 'react'
 
 import { CollectibleCard } from '../components/collectible-card'
 import { ThemeSelector } from '../components/theme-selector'
-import { SoundToggle } from '../components/sound-toggle'
-import { playSound, unlockAudio } from '../utils/sounds'
 import { Collection } from '../components/collection'
 import type { CollectionCounts } from '../types/collection'
 import { Button } from '../components/ui/button'
@@ -68,52 +66,6 @@ export function HomePage() {
       CARDS.find((card) => card.id === restoredGame?.cardId) ?? randomCard(),
   )
   const obtained = currentCount >= requiredClicks
-  const collectionTotal = Object.values(progress.collection).reduce(
-    (sum, count) => sum + count,
-    0,
-  )
-  const previousAudioState = useRef({
-    obtained,
-    completedRounds,
-    levels,
-    collectionTotal,
-  })
-
-  useEffect(() => {
-    document.addEventListener('pointerdown', unlockAudio, true)
-    document.addEventListener('touchend', unlockAudio, true)
-    document.addEventListener('click', unlockAudio, true)
-    document.addEventListener('keydown', unlockAudio, true)
-    return () => {
-      document.removeEventListener('pointerdown', unlockAudio, true)
-      document.removeEventListener('touchend', unlockAudio, true)
-      document.removeEventListener('click', unlockAudio, true)
-      document.removeEventListener('keydown', unlockAudio, true)
-    }
-  }, [])
-
-  useEffect(() => {
-    const previous = previousAudioState.current
-    if (obtained && !previous.obtained) playSound('reveal')
-    else if (completedRounds > previous.completedRounds) playSound('next')
-    else if (
-      Object.keys(levels).some(
-        (key) => levels[key as UpgradeId] > previous.levels[key as UpgradeId],
-      )
-    )
-      playSound('purchase')
-    else if (
-      previous.collectionTotal - collectionTotal ===
-      EXCHANGE_CARD_COUNT - 1
-    )
-      playSound('exchange')
-    previousAudioState.current = {
-      obtained,
-      completedRounds,
-      levels,
-      collectionTotal,
-    }
-  }, [obtained, completedRounds, levels, collectionTotal])
 
   useEffect(() => {
     const saved = saveGame({
@@ -257,13 +209,6 @@ export function HomePage() {
     }
 
     const criticalRoll = Math.random()
-    const isCritical = criticalRoll < getCriticalChance(levels.critical)
-    if (
-      currentCount + (levels.power + 1) * (isCritical ? 2 : 1) <
-      requiredClicks
-    ) {
-      playSound(isCritical ? 'critical' : 'click')
-    }
     setProgress((previous) => {
       if (previous.currentCount >= previous.requiredClicks) return previous
       const multiplier =
@@ -309,7 +254,6 @@ export function HomePage() {
         <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
         <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end sm:gap-3">
           <ThemeSelector />
-          <SoundToggle />
           <Collection
             counts={progress.collection}
             onExchange={exchangeCards}
