@@ -427,14 +427,11 @@ export function HomePage() {
           <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">
             A discovery awaits
           </p>
-          {obtained && (
-            <p
-              role="status"
-              className="mb-4 text-center text-xs text-stone-400"
-            >
-              {card.name} is yours.
-            </p>
-          )}
+          <p role="status" className="mb-4 text-center text-xs text-stone-400">
+            {obtained
+              ? `${card.name} is yours.`
+              : 'Every click brings it closer.'}
+          </p>
           <CollectibleCard
             card={card}
             revealed={obtained}
@@ -512,28 +509,30 @@ export function HomePage() {
                 </div>
               )}
             </dl>
-            {(sparkBoost || focusBoost) && (
-              <ul className="mt-3 flex flex-wrap justify-center gap-2">
-                {sparkBoost && (
-                  <li className="rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-1 text-[11px] tabular-nums text-amber-200">
-                    2× {CURRENCY_NAME}
-                    <span className="text-amber-200/70">
-                      {' '}
-                      · {progress.boosts.sparkClicks} left
-                    </span>
-                  </li>
-                )}
-                {focusBoost && (
-                  <li className="rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-1 text-[11px] tabular-nums text-amber-200">
-                    2× progress
-                    <span className="text-amber-200/70">
-                      {' '}
-                      · {progress.boosts.focusClicks} left
-                    </span>
-                  </li>
-                )}
-              </ul>
-            )}
+            <div className="h-4 mt-3">
+              {(sparkBoost || focusBoost) && (
+                <ul className="flex flex-wrap justify-center gap-2">
+                  {sparkBoost && (
+                    <li className="rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-1 text-[11px] tabular-nums text-amber-200">
+                      2× {CURRENCY_NAME}
+                      <span className="text-amber-200/70">
+                        {' '}
+                        · {progress.boosts.sparkClicks} left
+                      </span>
+                    </li>
+                  )}
+                  {focusBoost && (
+                    <li className="rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-1 text-[11px] tabular-nums text-amber-200">
+                      2× progress
+                      <span className="text-amber-200/70">
+                        {' '}
+                        · {progress.boosts.focusClicks} left
+                      </span>
+                    </li>
+                  )}
+                </ul>
+              )}
+            </div>
             <p
               role="status"
               className="mt-2 min-h-4 text-center text-xs text-amber-200"

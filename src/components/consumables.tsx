@@ -46,11 +46,13 @@ export function Consumables({
             <p className="mt-2 text-xs leading-relaxed text-stone-400">
               {item.description.replace('Sparks', CURRENCY_NAME)}
             </p>
-            {remaining > 0 && (
-              <p className="mt-3 text-xs text-amber-200">
-                Active: {remaining} clicks remaining
-              </p>
-            )}
+            <div className="h-4 mt-3">
+              {remaining > 0 && (
+                <p className="text-xs text-amber-200">
+                  Active: {remaining} clicks remaining
+                </p>
+              )}
+            </div>
             <Button
               className="mt-4 w-full cursor-pointer border border-amber-200/20 bg-amber-200/10 text-amber-100 hover:bg-amber-200/20"
               disabled={
