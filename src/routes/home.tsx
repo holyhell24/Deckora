@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { CollectibleCard } from '../components/collectible-card'
+import { ThemeSelector } from '../components/theme-selector'
 import { Collection } from '../components/collection'
 import type { CollectionCounts } from '../types/collection'
 import { Button } from '../components/ui/button'
@@ -236,15 +237,15 @@ export function HomePage() {
   }
 
   return (
-    <main className="relative isolate grid min-h-svh place-items-center overflow-hidden bg-[#0d1117] px-6 pb-12 pt-28 text-stone-100">
+    <main className="relative isolate grid min-h-svh place-items-center overflow-hidden bg-page px-6 pb-12 pt-28 text-stone-100">
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,#26323b_0%,transparent_65%)]"
+        className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,var(--glow)_0%,transparent_65%)]"
       />
       {storageError && (
         <p
           role="status"
-          className="fixed bottom-3 z-20 rounded-lg bg-[#141c24] px-4 py-2 text-xs text-amber-200"
+          className="fixed bottom-3 z-20 rounded-lg bg-surface px-4 py-2 text-xs text-amber-200"
         >
           Browser storage is unavailable. Progress will not survive a reload.
         </p>
@@ -252,6 +253,7 @@ export function HomePage() {
       <header className="absolute inset-x-0 top-0 flex flex-wrap items-center justify-between gap-3 px-6 py-6 sm:px-10">
         <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
         <div className="flex flex-wrap items-center gap-3">
+          <ThemeSelector />
           <Collection
             counts={progress.collection}
             onExchange={exchangeCards}
@@ -346,7 +348,7 @@ export function HomePage() {
         ref={shopRef}
         id="shop-dialog"
         aria-labelledby="shop-heading"
-        className="shop-drawer fixed inset-y-0 left-auto right-0 m-0 h-svh max-h-none w-full max-w-md overflow-y-auto border-l border-white/10 bg-[#141c24] p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+        className="shop-drawer fixed inset-y-0 left-auto right-0 m-0 h-svh max-h-none w-full max-w-md overflow-y-auto border-l border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
         onClick={(event) => {
           if (event.target !== event.currentTarget) return
           const bounds = event.currentTarget.getBoundingClientRect()

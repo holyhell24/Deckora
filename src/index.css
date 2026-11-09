@@ -1,5 +1,53 @@
 @import 'tailwindcss';
 
+:root {
+  color-scheme: dark;
+  --page: #0d1117;
+  --surface: #141c24;
+  --glow: #26323b;
+  --accent: #fde68a;
+  --accent-light: #fef3c7;
+}
+
+:root[data-theme='ocean'] {
+  --page: #081421;
+  --surface: #10283e;
+  --glow: #1b4d72;
+  --accent: #8ccaff;
+  --accent-light: #dcefff;
+}
+
+:root[data-theme='forest'] {
+  --page: #091611;
+  --surface: #11271f;
+  --glow: #244c3b;
+  --accent: #a7e5bd;
+  --accent-light: #dbf8e5;
+}
+
+:root[data-theme='amethyst'] {
+  --page: #140e20;
+  --surface: #231932;
+  --glow: #46305e;
+  --accent: #d8b4fe;
+  --accent-light: #f3e8ff;
+}
+
+:root[data-theme='ember'] {
+  --page: #1b100e;
+  --surface: #2d1c18;
+  --glow: #63382a;
+  --accent: #fdba8c;
+  --accent-light: #ffedd5;
+}
+
+@theme inline {
+  --color-page: var(--page);
+  --color-surface: var(--surface);
+  --color-amber-200: var(--accent);
+  --color-amber-100: var(--accent-light);
+}
+
 .shop-drawer {
   transform: translateX(100%);
   transition:
@@ -26,6 +74,6 @@
 
 @layer base {
   body {
-    @apply m-0 min-w-80 bg-[#0d1117] font-sans antialiased;
+    @apply m-0 min-w-80 bg-page font-sans antialiased;
   }
 }

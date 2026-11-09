@@ -50,7 +50,7 @@ export function Collection({
         ref={dialogRef}
         id="collection-dialog"
         aria-labelledby="collection-heading"
-        className="fixed inset-0 m-auto max-h-[90svh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-[#141c24] p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+        className="fixed inset-0 m-auto max-h-[90svh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
         onClick={(event) => {
           if (event.target !== event.currentTarget) return
           const bounds = event.currentTarget.getBoundingClientRect()
@@ -63,7 +63,7 @@ export function Collection({
             dialogRef.current?.close()
         }}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-[#141c24] p-6">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface p-6">
           <div>
             <h2 id="collection-heading" className="font-serif text-3xl">
               Your Collection
@@ -166,7 +166,7 @@ export function Collection({
                       [card.id]: payment[card.id] + 1,
                     })
                   }
-                  className={`block w-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200 enabled:cursor-pointer ${payment[card.id] > 0 ? 'ring-2 ring-amber-200 ring-offset-4 ring-offset-[#141c24]' : ''}`}
+                  className={`block w-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200 enabled:cursor-pointer ${payment[card.id] > 0 ? 'ring-2 ring-amber-200 ring-offset-4 ring-offset-surface' : ''}`}
                 >
                   <img
                     src={counts[card.id] > 0 ? card.image : hiddenFace}

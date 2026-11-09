@@ -32,7 +32,7 @@ export function Shop({
   return (
     <aside
       aria-labelledby="shop-heading"
-      className="w-full bg-[#141c24] px-6 pb-8 pt-16"
+      className="w-full bg-surface px-6 pb-8 pt-16"
     >
       <p className="text-[10px] uppercase tracking-[0.3em] text-amber-200/60">
         Invest in discovery
@@ -103,7 +103,7 @@ export function Shop({
                         [upgrade.id]: event.target.value,
                       }))
                     }
-                    className="mt-2 w-full rounded-lg border border-white/15 bg-[#141c24] p-2 text-stone-100"
+                    className="mt-2 w-full rounded-lg border border-white/15 bg-surface p-2 text-stone-100"
                   >
                     {availableCards.length === 0 && (
                       <option value="">No {rarity} cards available</option>
