@@ -30,7 +30,6 @@ export function Consumables({
       </p>
       {CONSUMABLES.map((item) => {
         const cost = getConsumableCost(item.cost, purchases[item.id])
-        const nextCost = getConsumableCost(item.cost, purchases[item.id] + 1)
         const remaining =
           item.id === 'spark-tonic'
             ? boosts.sparkClicks
