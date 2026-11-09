@@ -99,7 +99,7 @@ export function Collection({ counts }: { counts: CollectionCounts }) {
                   (card) => card.rarity === rarity && counts[card.id] > 0,
                 ).length
               }
-              /5)
+              /{CARDS.filter((card) => card.rarity === rarity).length})
             </button>
           ))}
         </div>

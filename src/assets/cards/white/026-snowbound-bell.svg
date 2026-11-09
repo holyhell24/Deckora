@@ -6,12 +6,12 @@
 >
   <defs>
     <linearGradient id="bg" x2="1" y2="1">
-      <stop stop-color="#183e32" />
+      <stop stop-color="#34424a" />
       <stop offset="1" stop-color="#111a22" />
     </linearGradient>
     <radialGradient id="halo">
-      <stop stop-color="#8de0ae" stop-opacity=".13" />
-      <stop offset="1" stop-color="#8de0ae" stop-opacity="0" />
+      <stop stop-color="#d9e3e8" stop-opacity=".13" />
+      <stop offset="1" stop-color="#d9e3e8" stop-opacity="0" />
     </radialGradient>
   </defs>
   <rect
@@ -21,7 +21,7 @@
     height="383"
     rx="16"
     fill="url(#bg)"
-    stroke="#8de0ae"
+    stroke="#d9e3e8"
     stroke-opacity=".4"
   />
   <rect
@@ -31,11 +31,11 @@
     height="358"
     rx="8"
     fill="none"
-    stroke="#8de0ae"
+    stroke="#d9e3e8"
     stroke-opacity=".18"
   />
   <circle cx="128" cy="170" r="100" fill="url(#halo)" />
-  <g fill="none" stroke="#8de0ae" stroke-opacity=".2">
+  <g fill="none" stroke="#d9e3e8" stroke-opacity=".2">
     <circle cx="128" cy="170" r="70" />
     <rect
       x="74"
@@ -43,7 +43,7 @@
       width="108"
       height="108"
       rx="18"
-      transform="rotate(54 128 170)"
+      transform="rotate(45 128 170)"
     />
     <rect
       x="89"
@@ -55,14 +55,14 @@
     />
   </g>
   <g
-    fill="#8de0ae"
-    stroke="#8de0ae"
+    fill="#d9e3e8"
+    stroke="#d9e3e8"
     stroke-width="1.7"
     stroke-linecap="round"
     stroke-linejoin="round"
   >
     <path
-      d="M126 215q20-50-1-89m6 69q-37 0-37-18 25-3 37 18m2-33q28-19 31-2-13 18-31 16m-5-25q-27 0-25-16 17 0 25 16m4 47q35-20 36-4-11 17-36 17"
+      d="M104 184v-28q0-35 24-35t24 35v28l10 12H94Zm16 19q8 15 16 0M128 114v7"
       fill="none"
     />
   </g>
@@ -70,28 +70,28 @@
     x="128"
     y="36"
     text-anchor="middle"
-    fill="#8de0ae"
+    fill="#d9e3e8"
     font-family="Arial,sans-serif"
     font-size="9"
     letter-spacing="3"
   >
-    010
+    026
   </text>
   <text
     x="128"
     y="331"
     text-anchor="middle"
-    fill="#8de0ae"
+    fill="#d9e3e8"
     font-family="Georgia,serif"
     font-size="24"
   >
-    Fern Whisper
+    Snowbound Bell
   </text>
   <text
     x="128"
     y="355"
     text-anchor="middle"
-    fill="#8de0ae"
+    fill="#d9e3e8"
     opacity=".65"
     font-family="Arial,sans-serif"
     font-size="8"

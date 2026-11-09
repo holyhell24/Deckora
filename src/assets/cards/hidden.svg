@@ -6,12 +6,12 @@
 >
   <defs>
     <linearGradient id="bg" x2="1" y2="1">
-      <stop stop-color="#34424a" />
-      <stop offset="1" stop-color="#111a22" />
+      <stop stop-color="#613d38" />
+      <stop offset="1" stop-color="#211a24" />
     </linearGradient>
     <radialGradient id="halo">
-      <stop stop-color="#d9e3e8" stop-opacity=".13" />
-      <stop offset="1" stop-color="#d9e3e8" stop-opacity="0" />
+      <stop stop-color="#efb393" stop-opacity=".13" />
+      <stop offset="1" stop-color="#efb393" stop-opacity="0" />
     </radialGradient>
   </defs>
   <rect
@@ -21,7 +21,7 @@
     height="383"
     rx="16"
     fill="url(#bg)"
-    stroke="#d9e3e8"
+    stroke="#efb393"
     stroke-opacity=".4"
   />
   <rect
@@ -31,11 +31,11 @@
     height="358"
     rx="8"
     fill="none"
-    stroke="#d9e3e8"
+    stroke="#efb393"
     stroke-opacity=".18"
   />
   <circle cx="128" cy="170" r="100" fill="url(#halo)" />
-  <g fill="none" stroke="#d9e3e8" stroke-opacity=".2">
+  <g fill="none" stroke="#efb393" stroke-opacity=".2">
     <circle cx="128" cy="170" r="70" />
     <rect
       x="74"
@@ -55,8 +55,8 @@
     />
   </g>
   <g
-    fill="#d9e3e8"
-    stroke="#d9e3e8"
+    fill="#efb393"
+    stroke="#efb393"
     stroke-width="1.7"
     stroke-linecap="round"
     stroke-linejoin="round"
@@ -69,7 +69,7 @@
     x="128"
     y="36"
     text-anchor="middle"
-    fill="#d9e3e8"
+    fill="#efb393"
     font-family="Arial,sans-serif"
     font-size="9"
     letter-spacing="3"
@@ -80,7 +80,7 @@
     x="128"
     y="331"
     text-anchor="middle"
-    fill="#d9e3e8"
+    fill="#efb393"
     font-family="Georgia,serif"
     font-size="24"
   >
@@ -90,7 +90,7 @@
     x="128"
     y="355"
     text-anchor="middle"
-    fill="#d9e3e8"
+    fill="#efb393"
     opacity=".65"
     font-family="Arial,sans-serif"
     font-size="8"
