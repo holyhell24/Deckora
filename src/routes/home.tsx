@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { CollectibleCard } from '../components/collectible-card'
 import { ThemeSelector } from '../components/theme-selector'
@@ -20,13 +20,14 @@ import { CURRENCY_NAME, getClickTarget } from '../constants/clicker'
 import { RARITY_WEIGHTS } from '../constants/rarities'
 import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
 import type { Rarity } from '../types/card'
-import { loadGame, saveGame } from '../utils/game-storage'
+import { loadGame, resetGame, saveGame } from '../utils/game-storage'
 import {
   BOOST_CLICKS,
   CONSUMABLES,
   getConsumableCost,
 } from '../constants/consumables'
 import type { ConsumableId } from '../types/consumable'
+import { ResetProgress } from '../components/reset-progress'
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS)
@@ -44,34 +45,50 @@ const randomCard = () => {
   throw new Error('Could not pick a card: check rarity weights.')
 }
 
+const INITIAL_VALUES = {
+  currentCount: 0,
+  sparks: 0,
+  completedRounds: 0,
+  requiredClicks: getClickTarget(0),
+  levels: {
+    power: 0,
+    mastery: 0,
+    fortune: 0,
+    critical: 0,
+    auto: 0,
+  } as UpgradeLevels,
+  clickMessage: '',
+  shopMessage: '',
+  collection: {} as CollectionCounts,
+  exchangeMessage: '',
+  boosts: { sparkClicks: 0, focusClicks: 0 },
+  consumablePurchases: {
+    'spark-tonic': 0,
+    'focus-tonic': 0,
+    'reveal-dust': 0,
+  },
+}
+
 export function HomePage() {
   const shopRef = useRef<HTMLDialogElement>(null)
-  const [restoredGame] = useState(() => loadGame(CARDS.map((card) => card.id)))
+  const resetProgressRef = useRef<HTMLDialogElement>(null)
   const [storageError, setStorageError] = useState(false)
+  const restoredGame = useMemo(() => loadGame(CARDS.map((card) => card.id)), [])
   const [progress, setProgress] = useState({
-    currentCount: restoredGame?.currentCount ?? 0,
-    sparks: restoredGame?.sparks ?? 0,
-    completedRounds: restoredGame?.completedRounds ?? 0,
-    requiredClicks: restoredGame?.requiredClicks ?? getClickTarget(0),
-    levels:
-      restoredGame?.levels ??
-      ({
-        power: 0,
-        mastery: 0,
-        fortune: 0,
-        critical: 0,
-        auto: 0,
-      } as UpgradeLevels),
-    clickMessage: '',
-    shopMessage: '',
-    collection: restoredGame?.collection ?? ({} as CollectionCounts),
-    exchangeMessage: '',
-    boosts: restoredGame?.boosts ?? { sparkClicks: 0, focusClicks: 0 },
-    consumablePurchases: restoredGame?.consumablePurchases ?? {
-      'spark-tonic': 0,
-      'focus-tonic': 0,
-      'reveal-dust': 0,
-    },
+    currentCount: restoredGame?.currentCount ?? INITIAL_VALUES.currentCount,
+    sparks: restoredGame?.sparks ?? INITIAL_VALUES.sparks,
+    completedRounds:
+      restoredGame?.completedRounds ?? INITIAL_VALUES.completedRounds,
+    requiredClicks:
+      restoredGame?.requiredClicks ?? INITIAL_VALUES.requiredClicks,
+    levels: restoredGame?.levels ?? INITIAL_VALUES.levels,
+    clickMessage: INITIAL_VALUES.clickMessage,
+    shopMessage: INITIAL_VALUES.shopMessage,
+    collection: restoredGame?.collection ?? INITIAL_VALUES.collection,
+    exchangeMessage: INITIAL_VALUES.exchangeMessage,
+    boosts: restoredGame?.boosts ?? INITIAL_VALUES.boosts,
+    consumablePurchases:
+      restoredGame?.consumablePurchases ?? INITIAL_VALUES.consumablePurchases,
   })
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
     progress
@@ -369,6 +386,11 @@ export function HomePage() {
     })
   }
 
+  const onResetButtonClick = () => {
+    resetGame()
+    setProgress(INITIAL_VALUES)
+  }
+
   return (
     <main className="relative isolate flex min-h-svh flex-col items-center overflow-x-clip bg-page px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-stone-100 sm:px-8">
       <div
@@ -389,6 +411,56 @@ export function HomePage() {
             DECKORA
           </span>
           <SoundToggle />
+          <ResetProgress
+            onResetButtonClick={() => resetProgressRef.current?.showModal()}
+          />
+
+          <dialog
+            ref={resetProgressRef}
+            id="reset-progress-dialog"
+            aria-labelledby="reset-progress-heading"
+            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 m-0 max-w-md overflow-y-auto rounded-xl border border-white/10 bg-surface text-stone-100 backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+            onClick={(event) => {
+              if (event.target !== event.currentTarget) return
+              const bounds = event.currentTarget.getBoundingClientRect()
+              if (
+                event.clientX < bounds.left ||
+                event.clientX > bounds.right ||
+                event.clientY < bounds.top ||
+                event.clientY > bounds.bottom
+              )
+                resetProgressRef.current?.close()
+            }}
+          >
+            <div>
+              <p className="m-2 text-center text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">
+                Are you sure you want to reset your progress? This action cannot
+                be undone.
+              </p>
+              <div className="flex items-center justify-center gap-4 p-4">
+                <Button
+                  aria-label="Yes"
+                  className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
+                  onClick={() => {
+                    onResetButtonClick()
+                    resetProgressRef.current?.close()
+                  }}
+                >
+                  Yes
+                </Button>
+                <Button
+                  variant="secondary"
+                  aria-label="No"
+                  className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
+                  onClick={() => {
+                    resetProgressRef.current?.close()
+                  }}
+                >
+                  No
+                </Button>
+              </div>
+            </div>
+          </dialog>
         </div>
         <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
           <div className="flex items-center justify-center gap-2 sm:gap-3">

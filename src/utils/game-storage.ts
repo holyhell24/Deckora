@@ -86,6 +86,14 @@ export function parseSavedGame(
   }
 }
 
+export function resetGame() {
+  try {
+    localStorage.removeItem(SAVE_KEY)
+  } catch {
+    return null
+  }
+}
+
 export function loadGame(validCardIds: readonly string[]): SavedGame | null {
   try {
     const raw = localStorage.getItem(SAVE_KEY)

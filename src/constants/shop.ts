@@ -11,7 +11,7 @@ const UPGRADE_CARD_TIERS: readonly Rarity[] = [
 
 // `level` is the currently owned level: the first card payment is level 10 -> 11.
 export function getUpgradeCardRarity(level: number): Rarity | null {
-  if (level < 10) return null
+  if (level < 5) return null
   return UPGRADE_CARD_TIERS[Math.min(Math.floor(level / 5) - 1, 4)]
 }
 
@@ -57,7 +57,7 @@ export const UPGRADES = [
 }[]
 
 export const getUpgradeCost = (baseCost: number, level: number) =>
-  Math.ceil(baseCost * 1.8 ** level)
+  Math.ceil(baseCost * 1.5 ** level)
 
 export const getCriticalChance = (level: number) => Math.min(level * 0.05, 0.5)
 
