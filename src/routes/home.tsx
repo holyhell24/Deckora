@@ -1,6 +1,8 @@
 import { useRef, useState } from 'react'
 
 import { CollectibleCard } from '../components/collectible-card'
+import { Collection } from '../components/collection'
+import type { CollectionCounts } from '../types/collection'
 import { Button } from '../components/ui/button'
 import { Shop } from '../components/shop'
 import { getCriticalChance, getUpgradeCost, UPGRADES } from '../constants/shop'
@@ -40,6 +42,7 @@ export function HomePage() {
     } as UpgradeLevels,
     clickMessage: '',
     shopMessage: '',
+    collection: {} as CollectionCounts,
   })
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
     progress
@@ -88,12 +91,20 @@ export function HomePage() {
         criticalRoll < getCriticalChance(previous.levels.critical) ? 2 : 1
       const earned =
         (previous.levels.power + 1 + previous.levels.fortune * 2) * multiplier
+      const nextCount = Math.min(
+        previous.currentCount + (previous.levels.power + 1) * multiplier,
+        previous.requiredClicks,
+      )
       return {
         ...previous,
-        currentCount: Math.min(
-          previous.currentCount + (previous.levels.power + 1) * multiplier,
-          previous.requiredClicks,
-        ),
+        currentCount: nextCount,
+        collection:
+          nextCount === previous.requiredClicks
+            ? {
+                ...previous.collection,
+                [card.id]: (previous.collection[card.id] ?? 0) + 1,
+              }
+            : previous.collection,
         sparks: previous.sparks + earned,
         clickMessage:
           multiplier === 2 ? `Critical click! +${earned} ${CURRENCY_NAME}` : '',
@@ -107,9 +118,10 @@ export function HomePage() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,#26323b_0%,transparent_65%)]"
       />
-      <header className="absolute inset-x-0 top-0 flex items-center justify-between px-6 py-6 sm:px-10">
+      <header className="absolute inset-x-0 top-0 flex flex-wrap items-center justify-between gap-3 px-6 py-6 sm:px-10">
         <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
-        <div className="flex items-center gap-3">
+        <div className="flex flex-wrap items-center gap-3">
+          <Collection counts={progress.collection} />
           <span className="rounded-full border border-amber-200/20 bg-amber-200/5 px-4 py-2 text-sm text-amber-200">
             <span className="font-semibold tabular-nums">
               {sparks.toLocaleString()}
