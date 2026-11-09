@@ -3,8 +3,23 @@
 import { CollectibleCard } from '../components/collectible-card'
 import { Button } from '../components/ui/button'
 import { CARDS, REQUIRED_CLICKS } from '../constants/cards'
+import { RARITY_WEIGHTS } from '../constants/rarities'
 
-const randomCard = () => CARDS[Math.floor(Math.random() * CARDS.length)]
+const randomCard = () => {
+  const rarities = Object.entries(RARITY_WEIGHTS)
+  const totalWeight = rarities.reduce((total, [, weight]) => total + weight, 0)
+  let roll = Math.random() * totalWeight
+
+  for (const [rarity, weight] of rarities) {
+    roll -= weight
+    if (roll < 0) {
+      const cards = CARDS.filter((card) => card.rarity === rarity)
+      return cards[Math.floor(Math.random() * cards.length)]
+    }
+  }
+
+  throw new Error('Could not pick a card: check rarity weights.')
+}
 
 export function HomePage() {
   const [currentCount, setCurrentCount] = useState(0)
@@ -40,6 +55,7 @@ export function HomePage() {
           {obtained && (
             <Button
               variant="secondary"
+              className="cursor-pointer"
               onClick={() => {
                 setCard(randomCard())
                 setCurrentCount(0)
