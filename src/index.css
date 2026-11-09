@@ -2,6 +2,6 @@
 
 @layer base {
   body {
-    @apply m-0 min-w-80 bg-slate-50 font-sans text-slate-950 antialiased;
+    @apply m-0 min-w-80 bg-[#0d1117] font-sans antialiased;
   }
 }

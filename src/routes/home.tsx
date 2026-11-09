@@ -1,21 +1,56 @@
-import { useState } from 'react'
+﻿import { useState } from 'react'
+
+import { CollectibleCard } from '../components/collectible-card'
 import { Button } from '../components/ui/button'
+import { CARDS, REQUIRED_CLICKS } from '../constants/cards'
+
+const randomCard = () => CARDS[Math.floor(Math.random() * CARDS.length)]
 
 export function HomePage() {
-  const [count, setCount] = useState(0)
+  const [currentCount, setCurrentCount] = useState(0)
+  const [card, setCard] = useState(randomCard)
+  const obtained = currentCount === REQUIRED_CLICKS
 
   return (
-    <main className="flex min-h-svh items-center justify-center p-6">
-      <div className="w-full max-w-lg space-y-6 rounded-2xl border border-slate-200 bg-white p-8 shadow-sm">
-        <h1 className="text-3xl font-semibold tracking-tight">Deckora</h1>
-        <p className="text-slate-600">Ready to build.</p>
-        <div className="flex flex-wrap gap-3">
-          <Button onClick={() => setCount((value) => value + 1)}>Count: {count}</Button>
-          <Button variant="secondary" onClick={() => setCount(0)} disabled={count === 0}>
-            Reset
-          </Button>
+    <main className="relative isolate grid min-h-svh place-items-center overflow-hidden bg-[#0d1117] px-6 py-16 text-stone-100">
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,#26323b_0%,transparent_65%)]" />
+      <header className="absolute inset-x-0 top-0 flex items-center justify-between px-6 py-6 sm:px-10">
+        <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
+        <span className="text-xs tracking-widest text-stone-500">THE COLLECTION BEGINS</span>
+      </header>
+
+      <section aria-label="Card clicker" className="flex flex-col items-center">
+        <p className="mb-7 text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">A discovery awaits</p>
+        <CollectibleCard
+          card={card}
+          revealed={obtained}
+          onClick={() => setCurrentCount((count) => Math.min(count + 1, REQUIRED_CLICKS))}
+        />
+
+        <div className="mt-8 w-56 sm:w-64">
+          <p aria-live="polite" aria-atomic="true" className="text-center text-2xl font-light tabular-nums tracking-wider">
+            {currentCount}<span className="mx-1 text-stone-600">/</span><span className="text-stone-400">{REQUIRED_CLICKS}</span>
+          </p>
+          <div role="progressbar" aria-label="Card unlock progress" aria-valuemin={0} aria-valuemax={REQUIRED_CLICKS} aria-valuenow={currentCount} className="mt-4 h-0.5 overflow-hidden rounded-full bg-white/10">
+            <div className="h-full bg-stone-200 transition-[width] duration-150 motion-reduce:transition-none" style={{ width: `${(currentCount / REQUIRED_CLICKS) * 100}%` }} />
+          </div>
+          <p role="status" className="mt-4 text-center text-xs text-stone-400">{obtained ? `${card.name} is yours.` : 'Every click brings it closer.'}</p>
         </div>
-      </div>
+        <div className="mt-6 flex h-10 items-center">
+          {obtained && (
+            <Button
+              variant="secondary"
+              onClick={() => {
+                setCard(randomCard())
+                setCurrentCount(0)
+              }}
+            >
+              Discover another card
+            </Button>
+          )}
+        </div>
+      </section>
     </main>
   )
 }
+
