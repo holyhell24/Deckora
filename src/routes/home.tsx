@@ -533,12 +533,14 @@ export function HomePage() {
                 </ul>
               )}
             </div>
-            <p
-              role="status"
-              className="mt-2 min-h-4 text-center text-xs text-amber-200"
-            >
-              {progress.clickMessage}
-            </p>
+            <div className="h-4 mt-6">
+              <p
+                role="status"
+                className="mt-2 min-h-4 text-center text-xs text-amber-200"
+              >
+                {progress.clickMessage}
+              </p>
+            </div>
           </div>
           <div className="mt-6 flex h-10 items-center">
             {obtained && (
