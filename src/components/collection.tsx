@@ -4,13 +4,34 @@ import type { Rarity } from '../types/card'
 import { CARDS } from '../constants/cards'
 import type { CollectionCounts } from '../types/collection'
 import { Button } from './ui/button'
+import { CardExchange } from './card-exchange'
+import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
 
 const RARITIES: readonly Rarity[] = ['White', 'Green', 'Blue', 'Purple', 'Gold']
 
-export function Collection({ counts }: { counts: CollectionCounts }) {
+export function Collection({
+  counts,
+  onExchange,
+  exchangeMessage,
+}: {
+  counts: CollectionCounts
+  onExchange: (rarity: Rarity, payment: CollectionCounts) => void
+  exchangeMessage: string
+}) {
   const dialogRef = useRef<HTMLDialogElement>(null)
   const [activeRarity, setActiveRarity] = useState<Rarity>('White')
+  const [selection, setSelection] = useState<CollectionCounts>({})
   const visibleCards = CARDS.filter((card) => card.rarity === activeRarity)
+  const payment = Object.fromEntries(
+    visibleCards.map((card) => [
+      card.id,
+      Math.min(selection[card.id] ?? 0, counts[card.id] ?? 0),
+    ]),
+  )
+  const selectedCount = Object.values(payment).reduce(
+    (sum, count) => sum + count,
+    0,
+  )
   const discovered = CARDS.filter((card) => counts[card.id] > 0)
   const total = Object.values(counts).reduce((sum, count) => sum + count, 0)
 
@@ -75,7 +96,10 @@ export function Collection({ counts }: { counts: CollectionCounts }) {
               aria-controls="collection-panel"
               aria-selected={activeRarity === rarity}
               tabIndex={activeRarity === rarity ? 0 : -1}
-              onClick={() => setActiveRarity(rarity)}
+              onClick={() => {
+                setActiveRarity(rarity)
+                setSelection({})
+              }}
               onKeyDown={(event) => {
                 let nextIndex = index
                 if (event.key === 'ArrowRight')
@@ -87,6 +111,7 @@ export function Collection({ counts }: { counts: CollectionCounts }) {
                 else return
                 event.preventDefault()
                 setActiveRarity(RARITIES[nextIndex])
+                setSelection({})
                 document
                   .getElementById(`collection-tab-${RARITIES[nextIndex]}`)
                   ?.focus()
@@ -94,12 +119,11 @@ export function Collection({ counts }: { counts: CollectionCounts }) {
               className={`cursor-pointer whitespace-nowrap rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${activeRarity === rarity ? 'border-amber-200/40 bg-amber-200/10 text-amber-100' : 'border-white/10 text-stone-400 hover:bg-white/5 hover:text-white'}`}
             >
               {rarity} (
-              {
-                CARDS.filter(
-                  (card) => card.rarity === rarity && counts[card.id] > 0,
-                ).length
-              }
-              /{CARDS.filter((card) => card.rarity === rarity).length})
+              {CARDS.filter((card) => card.rarity === rarity).reduce(
+                (total, card) => total + (counts[card.id] ?? 0),
+                0,
+              )}
+              )
             </button>
           ))}
         </div>
@@ -110,17 +134,64 @@ export function Collection({ counts }: { counts: CollectionCounts }) {
           tabIndex={0}
           className="p-6"
         >
+          <CardExchange
+            key={activeRarity}
+            rarity={activeRarity}
+            payment={payment}
+            onClear={() => setSelection({})}
+            onExchange={onExchange}
+          />
+          <p role="status" className="mb-4 text-sm text-amber-200">
+            {exchangeMessage}
+          </p>
           <ul className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5">
             {visibleCards.map((card) => (
               <li key={card.id}>
-                <img
-                  src={counts[card.id] > 0 ? card.image : hiddenFace}
-                  alt={counts[card.id] > 0 ? card.name : 'Undiscovered card'}
-                  width={256}
-                  height={384}
-                  loading="lazy"
-                  className="h-auto w-full rounded-xl"
-                />
+                <button
+                  type="button"
+                  disabled={
+                    !NEXT_RARITY[activeRarity] ||
+                    !(counts[card.id] > 0) ||
+                    selectedCount >= EXCHANGE_CARD_COUNT ||
+                    payment[card.id] >= counts[card.id]
+                  }
+                  aria-label={
+                    counts[card.id] > 0
+                      ? `Select ${card.name} for exchange. ${payment[card.id]} selected of ${counts[card.id]} owned`
+                      : 'Undiscovered card'
+                  }
+                  onClick={() =>
+                    setSelection({
+                      ...payment,
+                      [card.id]: payment[card.id] + 1,
+                    })
+                  }
+                  className={`block w-full rounded-xl focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-amber-200 enabled:cursor-pointer ${payment[card.id] > 0 ? 'ring-2 ring-amber-200 ring-offset-4 ring-offset-[#141c24]' : ''}`}
+                >
+                  <img
+                    src={counts[card.id] > 0 ? card.image : hiddenFace}
+                    alt={counts[card.id] > 0 ? card.name : 'Undiscovered card'}
+                    width={256}
+                    height={384}
+                    loading="lazy"
+                    className="h-auto w-full rounded-xl"
+                  />
+                </button>
+                {payment[card.id] > 0 && (
+                  <button
+                    type="button"
+                    aria-label={`Remove one ${card.name} from exchange`}
+                    onClick={() =>
+                      setSelection({
+                        ...payment,
+                        [card.id]: payment[card.id] - 1,
+                      })
+                    }
+                    className="mt-3 w-full cursor-pointer rounded-md bg-amber-200/10 px-2 py-1 text-xs text-amber-100 hover:bg-amber-200/20"
+                  >
+                    {payment[card.id]} selected · Remove one
+                  </button>
+                )}
                 <div className="h-5 flex items-center justify-center">
                   <h3 className="mt-2 text-sm font-medium">
                     {counts[card.id] > 1 ? `(${counts[card.id]})` : ''}

@@ -15,6 +15,8 @@ import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
 import { CARDS } from '../constants/cards'
 import { CURRENCY_NAME, getClickTarget } from '../constants/clicker'
 import { RARITY_WEIGHTS } from '../constants/rarities'
+import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
+import type { Rarity } from '../types/card'
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS)
@@ -48,11 +50,46 @@ export function HomePage() {
     clickMessage: '',
     shopMessage: '',
     collection: {} as CollectionCounts,
+    exchangeMessage: '',
   })
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
     progress
   const [card, setCard] = useState(() => randomCard())
   const obtained = currentCount >= requiredClicks
+
+  function exchangeCards(rarity: Rarity, payment: CollectionCounts) {
+    const nextRarity = NEXT_RARITY[rarity]
+    if (!nextRarity) return
+    const rewards = CARDS.filter((card) => card.rarity === nextRarity)
+    const reward = rewards[Math.floor(Math.random() * rewards.length)]
+    setProgress((previous) => {
+      const entries = Object.entries(payment)
+      if (
+        entries.reduce((sum, [, count]) => sum + count, 0) !==
+        EXCHANGE_CARD_COUNT
+      )
+        return previous
+      if (
+        entries.some(
+          ([id, count]) =>
+            !Number.isInteger(count) ||
+            count < 0 ||
+            !CARDS.some((card) => card.id === id && card.rarity === rarity) ||
+            count > (previous.collection[id] ?? 0),
+        )
+      )
+        return previous
+      const collection = { ...previous.collection }
+      for (const [id, count] of entries)
+        collection[id] = (collection[id] ?? 0) - count
+      collection[reward.id] = (collection[reward.id] ?? 0) + 1
+      return {
+        ...previous,
+        collection,
+        exchangeMessage: `Exchanged 5 ${rarity} cards for ${reward.name} (${nextRarity}). Find it in the ${nextRarity} tab.`,
+      }
+    })
+  }
 
   function buyUpgrade(id: UpgradeId, cardId?: string) {
     setProgress((previous) => {
@@ -142,7 +179,11 @@ export function HomePage() {
       <header className="absolute inset-x-0 top-0 flex flex-wrap items-center justify-between gap-3 px-6 py-6 sm:px-10">
         <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
         <div className="flex flex-wrap items-center gap-3">
-          <Collection counts={progress.collection} />
+          <Collection
+            counts={progress.collection}
+            onExchange={exchangeCards}
+            exchangeMessage={progress.exchangeMessage}
+          />
           <span className="rounded-full border border-amber-200/20 bg-amber-200/5 px-4 py-2 text-sm text-amber-200">
             <span className="font-semibold tabular-nums">
               {sparks.toLocaleString()}
