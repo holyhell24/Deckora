@@ -17,6 +17,13 @@ export function getUpgradeCardRarity(level: number): Rarity | null {
 
 export const UPGRADES = [
   {
+    id: 'auto',
+    name: 'Arcane Familiar',
+    description:
+      'Automatically adds +1 progress and +1 currency per second per level. Pauses when the card is revealed.',
+    baseCost: 50,
+  },
+  {
     id: 'power',
     name: 'Click Power',
     description: '+1 progress and +1 currency per click.',
@@ -56,6 +63,10 @@ export const getCriticalChance = (level: number) => Math.min(level * 0.05, 0.5)
 
 export function getUpgradeEffect(id: UpgradeId, level: number): string {
   switch (id) {
+    case 'auto':
+      return level === 0
+        ? 'Disabled'
+        : `+${level} progress and +${level} currency per second`
     case 'power':
       return `${level + 1} progress and base currency per click`
     case 'mastery':

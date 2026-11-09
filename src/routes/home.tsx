@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { CollectibleCard } from '../components/collectible-card'
 import { Collection } from '../components/collection'
@@ -46,6 +46,7 @@ export function HomePage() {
       mastery: 0,
       fortune: 0,
       critical: 0,
+      auto: 0,
     } as UpgradeLevels,
     clickMessage: '',
     shopMessage: '',
@@ -56,6 +57,39 @@ export function HomePage() {
     progress
   const [card, setCard] = useState(() => randomCard())
   const obtained = currentCount >= requiredClicks
+
+  useEffect(() => {
+    if (levels.auto === 0 || obtained) return
+
+    const interval = window.setInterval(() => {
+      setProgress((previous) => {
+        if (
+          previous.levels.auto === 0 ||
+          previous.currentCount >= previous.requiredClicks
+        )
+          return previous
+        const nextCount = Math.min(
+          previous.currentCount + previous.levels.auto,
+          previous.requiredClicks,
+        )
+        return {
+          ...previous,
+          currentCount: nextCount,
+          sparks: previous.sparks + previous.levels.auto,
+          collection:
+            nextCount === previous.requiredClicks
+              ? {
+                  ...previous.collection,
+                  [card.id]: (previous.collection[card.id] ?? 0) + 1,
+                }
+              : previous.collection,
+          clickMessage: '',
+        }
+      })
+    }, 1000)
+
+    return () => window.clearInterval(interval)
+  }, [levels.auto, obtained, card.id])
 
   function exchangeCards(rarity: Rarity, payment: CollectionCounts) {
     const nextRarity = NEXT_RARITY[rarity]
@@ -228,6 +262,14 @@ export function HomePage() {
               <span className="mx-1 text-stone-600">/</span>
               <span className="text-stone-400">{requiredClicks}</span>
             </p>
+            {levels.auto > 0 && (
+              <p className="mt-2 text-center text-xs text-stone-400">
+                Arcane Familiar:{' '}
+                {obtained
+                  ? 'paused'
+                  : `+${levels.auto} progress / +${levels.auto} ${CURRENCY_NAME} per second`}
+              </p>
+            )}
             <p
               role="status"
               className="mt-4 text-center text-xs text-stone-400"
