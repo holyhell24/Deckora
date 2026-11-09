@@ -81,9 +81,13 @@ export function HomePage() {
 
   useEffect(() => {
     document.addEventListener('pointerdown', unlockAudio, true)
+    document.addEventListener('touchend', unlockAudio, true)
+    document.addEventListener('click', unlockAudio, true)
     document.addEventListener('keydown', unlockAudio, true)
     return () => {
       document.removeEventListener('pointerdown', unlockAudio, true)
+      document.removeEventListener('touchend', unlockAudio, true)
+      document.removeEventListener('click', unlockAudio, true)
       document.removeEventListener('keydown', unlockAudio, true)
     }
   }, [])
@@ -288,7 +292,7 @@ export function HomePage() {
   }
 
   return (
-    <main className="relative isolate grid min-h-svh place-items-center overflow-hidden bg-page px-6 pb-12 pt-28 text-stone-100">
+    <main className="relative isolate flex min-h-svh flex-col items-center overflow-x-clip bg-page px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-stone-100 sm:px-8">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,var(--glow)_0%,transparent_65%)]"
@@ -301,9 +305,9 @@ export function HomePage() {
           Browser storage is unavailable. Progress will not survive a reload.
         </p>
       )}
-      <header className="absolute inset-x-0 top-0 flex flex-wrap items-center justify-between gap-3 px-6 py-6 sm:px-10">
+      <header className="flex w-full max-w-7xl flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
-        <div className="flex flex-wrap items-center gap-3">
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end sm:gap-3">
           <ThemeSelector />
           <SoundToggle />
           <Collection
@@ -329,12 +333,12 @@ export function HomePage() {
         </div>
       </header>
 
-      <div className="flex w-full max-w-5xl flex-col items-center justify-center gap-14 lg:flex-row lg:gap-24">
+      <div className="flex w-full max-w-5xl flex-1 flex-col items-center justify-center py-8 sm:py-12">
         <section
           aria-label="Card clicker"
           className="flex shrink-0 flex-col items-center"
         >
-          <p className="mb-7 text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">
+          <p className="mb-5 text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">
             A discovery awaits
           </p>
           <CollectibleCard
@@ -345,11 +349,11 @@ export function HomePage() {
             onClick={handleCardClick}
           />
 
-          <div className="mt-8 w-56 sm:w-64">
+          <div className="mt-6 w-56 max-w-full sm:w-64">
             <p
               aria-live="polite"
               aria-atomic="true"
-              className="text-center text-2xl font-light tabular-nums tracking-wider"
+              className="break-all text-center text-2xl font-light tabular-nums tracking-wider"
             >
               {currentCount}
               <span className="mx-1 text-stone-600">/</span>
@@ -400,7 +404,7 @@ export function HomePage() {
         ref={shopRef}
         id="shop-dialog"
         aria-labelledby="shop-heading"
-        className="shop-drawer fixed inset-y-0 left-auto right-0 m-0 h-svh max-h-none w-full max-w-md overflow-y-auto border-l border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+        className="shop-drawer fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none overscroll-contain w-full max-w-md overflow-y-auto border-l border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
         onClick={(event) => {
           if (event.target !== event.currentTarget) return
           const bounds = event.currentTarget.getBoundingClientRect()
@@ -413,15 +417,20 @@ export function HomePage() {
             shopRef.current?.close()
         }}
       >
-        <div className="relative min-h-full">
-          <Button
-            aria-label="Close shop"
-            size="sm"
-            className="absolute right-4 top-4 cursor-pointer bg-transparent text-stone-400 hover:bg-white/10 hover:text-white"
-            onClick={() => shopRef.current?.close()}
-          >
-            Close
-          </Button>
+        <div className="relative min-h-full pb-[env(safe-area-inset-bottom)]">
+          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
+            <span className="text-sm text-amber-200">
+              {sparks.toLocaleString()} {CURRENCY_NAME}
+            </span>
+            <Button
+              aria-label="Close shop"
+              size="sm"
+              className="cursor-pointer bg-transparent text-stone-400 hover:bg-white/10 hover:text-white"
+              onClick={() => shopRef.current?.close()}
+            >
+              Close
+            </Button>
+          </div>
           <Shop
             collection={progress.collection}
             balance={sparks}

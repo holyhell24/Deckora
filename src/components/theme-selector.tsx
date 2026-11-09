@@ -26,7 +26,7 @@ export function ThemeSelector() {
       <select
         value={theme}
         onChange={(event) => setTheme(event.target.value as ThemeId)}
-        className="h-10 cursor-pointer rounded-lg border border-white/15 bg-surface px-3 text-sm text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+        className="h-11 max-w-32 cursor-pointer text-base sm:text-sm rounded-lg border border-white/15 bg-surface px-3 text-sm text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
       >
         {THEMES.map((item) => (
           <option key={item.id} value={item.id}>

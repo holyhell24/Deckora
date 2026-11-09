@@ -14,13 +14,26 @@ export const isSoundEnabled = () => enabled
 export function unlockAudio() {
   if (!enabled) return
   try {
-    if (!context) {
-      context = new AudioContext()
+    if (!context || context.state === 'closed') {
+      const AudioContextConstructor =
+        window.AudioContext ??
+        (window as Window & { webkitAudioContext?: typeof AudioContext })
+          .webkitAudioContext
+      if (!AudioContextConstructor) return
+      context = new AudioContextConstructor()
       output = context.createGain()
       output.gain.value = 0.12
       output.connect(context.destination)
     }
-    if (context.state === 'suspended') void context.resume().catch(() => {})
+    if (context.state !== 'running') {
+      // Start a silent buffer during the gesture as well as resuming the context.
+      const source = context.createBufferSource()
+      source.buffer = context.createBuffer(1, 1, context.sampleRate)
+      source.connect(context.destination)
+      source.start()
+      source.onended = () => source.disconnect()
+      void context.resume().catch(() => {})
+    }
   } catch {
     // Unsupported or blocked audio must not interrupt the game.
   }
@@ -48,6 +61,26 @@ const notes = {
 } as const
 
 export function playSound(sound: keyof typeof notes) {
+  if (!enabled || document.hidden) return
+  unlockAudio()
+  if (!context || !output) return
+  if (context.state !== 'running') {
+    const requestedAt = performance.now()
+    const activeContext = context
+    void activeContext
+      .resume()
+      .then(() => {
+        // Drop old sounds rather than replaying them after a later interaction.
+        if (context === activeContext && performance.now() - requestedAt < 300)
+          scheduleSound(sound)
+      })
+      .catch(() => {})
+    return
+  }
+  scheduleSound(sound)
+}
+
+function scheduleSound(sound: keyof typeof notes) {
   if (
     !enabled ||
     !context ||

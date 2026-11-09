@@ -48,7 +48,7 @@ export function CollectibleCard({
 
   return (
     <div
-      className="-m-10 box-content w-56 p-10 [perspective:900px] sm:w-64"
+      className="-m-3 box-content w-[min(60vw,38svh,14rem)] p-3 sm:-m-10 sm:p-10 [perspective:900px] sm:w-64"
       onPointerMove={updateTilt}
       onPointerLeave={resetTilt}
       onPointerCancel={resetTilt}
@@ -66,7 +66,7 @@ export function CollectibleCard({
               ? `${card.name} obtained. Click to discover another card`
               : 'Click to uncover the hidden card'
           }
-          className="relative block w-full overflow-hidden rounded-2xl shadow-[0_24px_80px_#0008] transition-transform duration-150 enabled:cursor-pointer enabled:active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-stone-200 motion-reduce:transform-none motion-reduce:transition-none"
+          className="relative block w-full touch-manipulation select-none overflow-hidden rounded-2xl shadow-[0_24px_80px_#0008] transition-transform duration-150 enabled:cursor-pointer enabled:active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-stone-200 motion-reduce:transform-none motion-reduce:transition-none"
         >
           <img
             src={face}

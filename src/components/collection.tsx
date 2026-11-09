@@ -50,7 +50,7 @@ export function Collection({
         ref={dialogRef}
         id="collection-dialog"
         aria-labelledby="collection-heading"
-        className="fixed inset-0 m-auto max-h-[90svh] w-[calc(100%-2rem)] max-w-4xl overflow-y-auto rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+        className="fixed inset-0 m-auto h-dvh max-h-none w-full max-w-4xl overscroll-contain overflow-y-auto rounded-none sm:h-auto sm:max-h-[90dvh] sm:w-[calc(100%-2rem)] sm:rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
         onClick={(event) => {
           if (event.target !== event.currentTarget) return
           const bounds = event.currentTarget.getBoundingClientRect()
@@ -63,9 +63,12 @@ export function Collection({
             dialogRef.current?.close()
         }}
       >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface p-6">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-6">
           <div>
-            <h2 id="collection-heading" className="font-serif text-3xl">
+            <h2
+              id="collection-heading"
+              className="font-serif text-2xl sm:text-3xl"
+            >
               Your Collection
             </h2>
             <p className="mt-2 text-sm text-stone-400">
@@ -85,7 +88,7 @@ export function Collection({
         <div
           role="tablist"
           aria-label="Card rarities"
-          className="flex gap-2 overflow-x-auto px-6 pt-5"
+          className="flex gap-2 overflow-x-auto px-4 py-4 sm:px-6"
         >
           {RARITIES.map((rarity, index) => (
             <button
@@ -116,7 +119,7 @@ export function Collection({
                   .getElementById(`collection-tab-${RARITIES[nextIndex]}`)
                   ?.focus()
               }}
-              className={`cursor-pointer whitespace-nowrap rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${activeRarity === rarity ? 'border-amber-200/40 bg-amber-200/10 text-amber-100' : 'border-white/10 text-stone-400 hover:bg-white/5 hover:text-white'}`}
+              className={`min-h-11 shrink-0 cursor-pointer whitespace-nowrap rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${activeRarity === rarity ? 'border-amber-200/40 bg-amber-200/10 text-amber-100' : 'border-white/10 text-stone-400 hover:bg-white/5 hover:text-white'}`}
             >
               {rarity} (
               {CARDS.filter((card) => card.rarity === rarity).reduce(
@@ -132,7 +135,7 @@ export function Collection({
           id="collection-panel"
           aria-labelledby={`collection-tab-${activeRarity}`}
           tabIndex={0}
-          className="p-6"
+          className="px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-2 sm:p-6"
         >
           <CardExchange
             key={activeRarity}
@@ -144,7 +147,7 @@ export function Collection({
           <p role="status" className="mb-4 text-sm text-amber-200">
             {exchangeMessage}
           </p>
-          <ul className="grid grid-cols-2 gap-5 sm:grid-cols-3 md:grid-cols-5">
+          <ul className="grid grid-cols-2 gap-x-4 gap-y-6 sm:grid-cols-3 md:grid-cols-5">
             {visibleCards.map((card) => (
               <li key={card.id}>
                 <button
@@ -187,7 +190,7 @@ export function Collection({
                         [card.id]: payment[card.id] - 1,
                       })
                     }
-                    className="mt-3 w-full cursor-pointer rounded-md bg-amber-200/10 px-2 py-1 text-xs text-amber-100 hover:bg-amber-200/20"
+                    className="mt-3 min-h-11 w-full cursor-pointer rounded-md bg-amber-200/10 px-2 py-1 text-xs text-amber-100 hover:bg-amber-200/20"
                   >
                     {payment[card.id]} selected · Remove one
                   </button>
