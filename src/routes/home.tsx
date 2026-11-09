@@ -33,7 +33,21 @@ export function HomePage() {
   const requiredClicks = getClickTarget(completedRounds)
   const obtained = currentCount >= requiredClicks
 
+  function discoverNextCard() {
+    setCard(randomCard())
+    setProgress((previous) => ({
+      ...previous,
+      currentCount: 0,
+      completedRounds: previous.completedRounds + 1,
+    }))
+  }
+
   function handleCardClick() {
+    if (obtained) {
+      discoverNextCard()
+      return
+    }
+
     setProgress((previous) => {
       if (previous.currentCount >= getClickTarget(previous.completedRounds))
         return previous
@@ -68,6 +82,8 @@ export function HomePage() {
         <CollectibleCard
           card={card}
           revealed={obtained}
+          currentCount={currentCount}
+          requiredClicks={requiredClicks}
           onClick={handleCardClick}
         />
 
@@ -81,19 +97,6 @@ export function HomePage() {
             <span className="mx-1 text-stone-600">/</span>
             <span className="text-stone-400">{requiredClicks}</span>
           </p>
-          <div
-            role="progressbar"
-            aria-label="Card unlock progress"
-            aria-valuemin={0}
-            aria-valuemax={requiredClicks}
-            aria-valuenow={currentCount}
-            className="mt-4 h-0.5 overflow-hidden rounded-full bg-white/10"
-          >
-            <div
-              className="h-full bg-stone-200 transition-[width] duration-150 motion-reduce:transition-none"
-              style={{ width: `${(currentCount / requiredClicks) * 100}%` }}
-            />
-          </div>
           <p role="status" className="mt-4 text-center text-xs text-stone-400">
             {obtained
               ? `${card.name} is yours.`
@@ -110,14 +113,7 @@ export function HomePage() {
             <Button
               variant="secondary"
               className="cursor-pointer"
-              onClick={() => {
-                setCard(randomCard())
-                setProgress((previous) => ({
-                  ...previous,
-                  currentCount: 0,
-                  completedRounds: previous.completedRounds + 1,
-                }))
-              }}
+              onClick={discoverNextCard}
             >
               Discover another card
             </Button>
