@@ -1,5 +1,6 @@
 import type { CollectionCounts } from './collection'
 import type { UpgradeLevels } from './upgrade'
+import type { ActiveBoosts, ConsumablePurchases } from './consumable'
 
 export type SavedGame = {
   version: 1
@@ -10,4 +11,6 @@ export type SavedGame = {
   requiredClicks: number
   levels: UpgradeLevels
   collection: CollectionCounts
+  boosts: ActiveBoosts
+  consumablePurchases: ConsumablePurchases
 }

@@ -10,6 +10,12 @@ import { CARDS } from '../constants/cards'
 import type { CollectionCounts } from '../types/collection'
 import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
 import { Button } from './ui/button'
+import { Consumables } from './consumables'
+import type {
+  ActiveBoosts,
+  ConsumableId,
+  ConsumablePurchases,
+} from '../types/consumable'
 
 type ShopProps = {
   balance: number
@@ -17,6 +23,10 @@ type ShopProps = {
   onBuy: (id: UpgradeId, cardId?: string) => void
   collection: CollectionCounts
   message: string
+  boosts: ActiveBoosts
+  consumablePurchases: ConsumablePurchases
+  revealed: boolean
+  onBuyConsumable: (id: ConsumableId) => void
 }
 
 export function Shop({
@@ -25,7 +35,12 @@ export function Shop({
   onBuy,
   message,
   collection,
+  boosts,
+  consumablePurchases,
+  revealed,
+  onBuyConsumable,
 }: ShopProps) {
+  const [section, setSection] = useState<'upgrades' | 'consumables'>('upgrades')
   const [selectedCards, setSelectedCards] = useState<
     Partial<Record<UpgradeId, string>>
   >({})
@@ -41,9 +56,30 @@ export function Shop({
         The Workshop
       </h2>
       <p className="mt-2 text-sm text-stone-400">
-        Trade {CURRENCY_NAME} for lasting upgrades.
+        Trade {CURRENCY_NAME} for permanent upgrades and temporary boosts.
       </p>
-      <div className="mt-6 space-y-4">
+      <div className="my-5 grid grid-cols-2 gap-2" aria-label="Shop sections">
+        {(['upgrades', 'consumables'] as const).map((tab) => (
+          <Button
+            key={tab}
+            aria-pressed={section === tab}
+            onClick={() => setSection(tab)}
+            className={`cursor-pointer capitalize ${section === tab ? 'border border-amber-200/40 bg-amber-200/10 text-amber-100' : 'bg-white/5 text-stone-400 hover:bg-white/10'}`}
+          >
+            {tab}
+          </Button>
+        ))}
+      </div>
+      {section === 'consumables' && (
+        <Consumables
+          balance={balance}
+          boosts={boosts}
+          purchases={consumablePurchases}
+          revealed={revealed}
+          onBuy={onBuyConsumable}
+        />
+      )}
+      <div hidden={section !== 'upgrades'} className="mt-6 space-y-4">
         {UPGRADES.map((upgrade) => {
           const level = levels[upgrade.id]
           const cost = getUpgradeCost(upgrade.baseCost, level)
@@ -133,11 +169,11 @@ export function Shop({
                   Discover a {rarity} card to upgrade.
                 </p>
               )}
-              {!affordable && !maxed && (
-                <p className="mt-2 text-center text-xs text-stone-500">
-                  Need {(cost - balance).toLocaleString()} more {CURRENCY_NAME}
-                </p>
-              )}
+              <p className="mt-2 min-h-4 text-center text-xs text-stone-500">
+                {!affordable && !maxed
+                  ? `Need ${(cost - balance).toLocaleString()} more ${CURRENCY_NAME}`
+                  : '\u00a0'}
+              </p>
             </div>
           )
         })}

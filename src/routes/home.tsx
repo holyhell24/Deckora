@@ -21,6 +21,12 @@ import { RARITY_WEIGHTS } from '../constants/rarities'
 import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
 import type { Rarity } from '../types/card'
 import { loadGame, saveGame } from '../utils/game-storage'
+import {
+  BOOST_CLICKS,
+  CONSUMABLES,
+  getConsumableCost,
+} from '../constants/consumables'
+import type { ConsumableId } from '../types/consumable'
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS)
@@ -60,6 +66,12 @@ export function HomePage() {
     shopMessage: '',
     collection: restoredGame?.collection ?? ({} as CollectionCounts),
     exchangeMessage: '',
+    boosts: restoredGame?.boosts ?? { sparkClicks: 0, focusClicks: 0 },
+    consumablePurchases: restoredGame?.consumablePurchases ?? {
+      'spark-tonic': 0,
+      'focus-tonic': 0,
+      'reveal-dust': 0,
+    },
   })
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
     progress
@@ -121,6 +133,8 @@ export function HomePage() {
       requiredClicks,
       levels,
       collection: progress.collection,
+      boosts: progress.boosts,
+      consumablePurchases: progress.consumablePurchases,
     })
     const notification = window.setTimeout(() => setStorageError(!saved), 0)
     return () => window.clearTimeout(notification)
@@ -132,6 +146,8 @@ export function HomePage() {
     requiredClicks,
     levels,
     progress.collection,
+    progress.boosts,
+    progress.consumablePurchases,
   ])
 
   useEffect(() => {
@@ -201,6 +217,55 @@ export function HomePage() {
     })
   }
 
+  function buyConsumable(id: ConsumableId) {
+    setProgress((previous) => {
+      const item = CONSUMABLES.find((item) => item.id === id)
+      if (!item) return previous
+      const cost = getConsumableCost(
+        item.cost,
+        previous.consumablePurchases[id],
+      )
+      if (!Number.isSafeInteger(cost) || previous.sparks < cost) return previous
+      if (
+        id === 'reveal-dust' &&
+        previous.currentCount >= previous.requiredClicks
+      )
+        return previous
+      const nextCount =
+        id === 'reveal-dust'
+          ? Math.min(
+              previous.requiredClicks,
+              previous.currentCount + Math.ceil(previous.requiredClicks * 0.25),
+            )
+          : previous.currentCount
+      return {
+        ...previous,
+        sparks: previous.sparks - cost,
+        consumablePurchases: {
+          ...previous.consumablePurchases,
+          [id]: previous.consumablePurchases[id] + 1,
+        },
+        currentCount: nextCount,
+        boosts: {
+          sparkClicks:
+            previous.boosts.sparkClicks +
+            (id === 'spark-tonic' ? BOOST_CLICKS : 0),
+          focusClicks:
+            previous.boosts.focusClicks +
+            (id === 'focus-tonic' ? BOOST_CLICKS : 0),
+        },
+        collection:
+          id === 'reveal-dust' && nextCount === previous.requiredClicks
+            ? {
+                ...previous.collection,
+                [card.id]: (previous.collection[card.id] ?? 0) + 1,
+              }
+            : previous.collection,
+        shopMessage: `${item.name} activated.`,
+      }
+    })
+  }
+
   function buyUpgrade(id: UpgradeId, cardId?: string) {
     setProgress((previous) => {
       const upgrade = UPGRADES.find((item) => item.id === id)!
@@ -254,16 +319,27 @@ export function HomePage() {
 
     const criticalRoll = Math.random()
     const critical = criticalRoll < getCriticalChance(levels.critical)
-    if (currentCount + (levels.power + 1) * (critical ? 2 : 1) < requiredClicks)
+    if (
+      currentCount +
+        (levels.power + 1) *
+          (critical ? 2 : 1) *
+          (progress.boosts.focusClicks > 0 ? 2 : 1) <
+      requiredClicks
+    )
       playSound(critical ? 'critical' : 'click')
     setProgress((previous) => {
       if (previous.currentCount >= previous.requiredClicks) return previous
       const multiplier =
         criticalRoll < getCriticalChance(previous.levels.critical) ? 2 : 1
       const earned =
-        (previous.levels.power + 1 + previous.levels.fortune * 2) * multiplier
+        (previous.levels.power + 1 + previous.levels.fortune * 2) *
+        multiplier *
+        (previous.boosts.sparkClicks > 0 ? 2 : 1)
       const nextCount = Math.min(
-        previous.currentCount + (previous.levels.power + 1) * multiplier,
+        previous.currentCount +
+          (previous.levels.power + 1) *
+            multiplier *
+            (previous.boosts.focusClicks > 0 ? 2 : 1),
         previous.requiredClicks,
       )
       return {
@@ -277,6 +353,10 @@ export function HomePage() {
               }
             : previous.collection,
         sparks: previous.sparks + earned,
+        boosts: {
+          sparkClicks: Math.max(0, previous.boosts.sparkClicks - 1),
+          focusClicks: Math.max(0, previous.boosts.focusClicks - 1),
+        },
         clickMessage:
           multiplier === 2 ? `Critical click! +${earned} ${CURRENCY_NAME}` : '',
       }
@@ -378,8 +458,21 @@ export function HomePage() {
             <p className="mt-2 text-center text-xs text-amber-200/60">
               {obtained
                 ? `Next card: ${getClickTarget(completedRounds + 1, levels.mastery)} progress`
-                : `+${levels.power + 1} progress · +${levels.power + 1 + levels.fortune * 2} ${CURRENCY_NAME} per click`}
+                : `+${(levels.power + 1) * (progress.boosts.focusClicks > 0 ? 2 : 1)} progress · +${(levels.power + 1 + levels.fortune * 2) * (progress.boosts.sparkClicks > 0 ? 2 : 1)} ${CURRENCY_NAME} per click`}
             </p>
+            {(progress.boosts.sparkClicks > 0 ||
+              progress.boosts.focusClicks > 0) && (
+              <>
+                <p className="mt-2 text-center text-xs text-amber-200">
+                  {progress.boosts.sparkClicks > 0 &&
+                    `2× Sparks: ${progress.boosts.sparkClicks} clicks left. `}
+                </p>
+                <p className="mt-2 text-center text-xs text-amber-200">
+                  {progress.boosts.focusClicks > 0 &&
+                    `2× progress: ${progress.boosts.focusClicks} clicks left.`}
+                </p>
+              </>
+            )}
             <p
               role="status"
               className="mt-2 min-h-4 text-center text-xs text-amber-200"
@@ -432,6 +525,10 @@ export function HomePage() {
             </Button>
           </div>
           <Shop
+            consumablePurchases={progress.consumablePurchases}
+            boosts={progress.boosts}
+            revealed={obtained}
+            onBuyConsumable={buyConsumable}
             collection={progress.collection}
             balance={sparks}
             levels={levels}

@@ -30,6 +30,21 @@ export function parseSavedGame(
       return null
     if (save.levels.critical > 10) return null
     if (
+      save.consumablePurchases !== undefined &&
+      (!save.consumablePurchases ||
+        !['spark-tonic', 'focus-tonic', 'reveal-dust'].every((id) =>
+          isCount(save.consumablePurchases[id]),
+        ))
+    )
+      return null
+    if (
+      save.boosts !== undefined &&
+      (!save.boosts ||
+        !isCount(save.boosts.sparkClicks) ||
+        !isCount(save.boosts.focusClicks))
+    )
+      return null
+    if (
       !save.collection ||
       typeof save.collection !== 'object' ||
       Array.isArray(save.collection)
@@ -56,6 +71,15 @@ export function parseSavedGame(
         auto: save.levels.auto,
       },
       collection: { ...save.collection },
+      consumablePurchases: {
+        'spark-tonic': save.consumablePurchases?.['spark-tonic'] ?? 0,
+        'focus-tonic': save.consumablePurchases?.['focus-tonic'] ?? 0,
+        'reveal-dust': save.consumablePurchases?.['reveal-dust'] ?? 0,
+      },
+      boosts: {
+        sparkClicks: save.boosts?.sparkClicks ?? 0,
+        focusClicks: save.boosts?.focusClicks ?? 0,
+      },
     }
   } catch {
     return null
