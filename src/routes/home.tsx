@@ -17,6 +17,7 @@ import { CURRENCY_NAME, getClickTarget } from '../constants/clicker'
 import { RARITY_WEIGHTS } from '../constants/rarities'
 import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
 import type { Rarity } from '../types/card'
+import { loadGame, saveGame } from '../utils/game-storage'
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS)
@@ -36,27 +37,57 @@ const randomCard = () => {
 
 export function HomePage() {
   const shopRef = useRef<HTMLDialogElement>(null)
+  const [restoredGame] = useState(() => loadGame(CARDS.map((card) => card.id)))
+  const [storageError, setStorageError] = useState(false)
   const [progress, setProgress] = useState({
-    currentCount: 0,
-    sparks: 0,
-    completedRounds: 0,
-    requiredClicks: getClickTarget(0),
-    levels: {
-      power: 0,
-      mastery: 0,
-      fortune: 0,
-      critical: 0,
-      auto: 0,
-    } as UpgradeLevels,
+    currentCount: restoredGame?.currentCount ?? 0,
+    sparks: restoredGame?.sparks ?? 0,
+    completedRounds: restoredGame?.completedRounds ?? 0,
+    requiredClicks: restoredGame?.requiredClicks ?? getClickTarget(0),
+    levels:
+      restoredGame?.levels ??
+      ({
+        power: 0,
+        mastery: 0,
+        fortune: 0,
+        critical: 0,
+        auto: 0,
+      } as UpgradeLevels),
     clickMessage: '',
     shopMessage: '',
-    collection: {} as CollectionCounts,
+    collection: restoredGame?.collection ?? ({} as CollectionCounts),
     exchangeMessage: '',
   })
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
     progress
-  const [card, setCard] = useState(() => randomCard())
+  const [card, setCard] = useState(
+    () =>
+      CARDS.find((card) => card.id === restoredGame?.cardId) ?? randomCard(),
+  )
   const obtained = currentCount >= requiredClicks
+
+  useEffect(() => {
+    const saved = saveGame({
+      version: 1,
+      cardId: card.id,
+      currentCount,
+      sparks,
+      completedRounds,
+      requiredClicks,
+      levels,
+      collection: progress.collection,
+    })
+    const notification = window.setTimeout(() => setStorageError(!saved), 0)
+    return () => window.clearTimeout(notification)
+  }, [
+    card.id,
+    currentCount,
+    sparks,
+    completedRounds,
+    requiredClicks,
+    levels,
+    progress.collection,
+  ])
 
   useEffect(() => {
     if (levels.auto === 0 || obtained) return
@@ -210,6 +241,14 @@ export function HomePage() {
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,#26323b_0%,transparent_65%)]"
       />
+      {storageError && (
+        <p
+          role="status"
+          className="fixed bottom-3 z-20 rounded-lg bg-[#141c24] px-4 py-2 text-xs text-amber-200"
+        >
+          Browser storage is unavailable. Progress will not survive a reload.
+        </p>
+      )}
       <header className="absolute inset-x-0 top-0 flex flex-wrap items-center justify-between gap-3 px-6 py-6 sm:px-10">
         <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
         <div className="flex flex-wrap items-center gap-3">
