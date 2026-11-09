@@ -5,7 +5,12 @@ import { Collection } from '../components/collection'
 import type { CollectionCounts } from '../types/collection'
 import { Button } from '../components/ui/button'
 import { Shop } from '../components/shop'
-import { getCriticalChance, getUpgradeCost, UPGRADES } from '../constants/shop'
+import {
+  getCriticalChance,
+  getUpgradeCardRarity,
+  getUpgradeCost,
+  UPGRADES,
+} from '../constants/shop'
 import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
 import { CARDS } from '../constants/cards'
 import { CURRENCY_NAME, getClickTarget } from '../constants/clicker'
@@ -49,15 +54,31 @@ export function HomePage() {
   const [card, setCard] = useState(() => randomCard())
   const obtained = currentCount >= requiredClicks
 
-  function buyUpgrade(id: UpgradeId) {
+  function buyUpgrade(id: UpgradeId, cardId?: string) {
     setProgress((previous) => {
       const upgrade = UPGRADES.find((item) => item.id === id)!
       const cost = getUpgradeCost(upgrade.baseCost, previous.levels[id])
       if (previous.sparks < cost) return previous
       if (id === 'critical' && previous.levels.critical >= 10) return previous
+      const rarity = getUpgradeCardRarity(previous.levels[id])
+      const paymentCard = CARDS.find(
+        (card) => card.id === cardId && card.rarity === rarity,
+      )
+      if (
+        rarity &&
+        (!paymentCard || !(previous.collection[paymentCard.id] > 0))
+      )
+        return previous
       return {
         ...previous,
         sparks: previous.sparks - cost,
+        collection:
+          rarity && paymentCard
+            ? {
+                ...previous.collection,
+                [paymentCard.id]: previous.collection[paymentCard.id] - 1,
+              }
+            : previous.collection,
         levels: { ...previous.levels, [id]: previous.levels[id] + 1 },
         shopMessage: `${upgrade.name} upgraded to level ${previous.levels[id] + 1}.`,
       }
@@ -226,6 +247,7 @@ export function HomePage() {
             Close
           </Button>
           <Shop
+            collection={progress.collection}
             balance={sparks}
             levels={levels}
             onBuy={buyUpgrade}

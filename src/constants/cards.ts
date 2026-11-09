@@ -24,7 +24,6 @@ import card21 from '../assets/cards/gold/022-phoenix-ember.svg'
 import card22 from '../assets/cards/purple/023-eternal-hourglass.svg'
 import card23 from '../assets/cards/gold/024-celestial-throne.svg'
 import card24 from '../assets/cards/gold/025-dawnbringer.svg'
-
 import card25 from '../assets/cards/white/026-snowbound-bell.svg'
 import card26 from '../assets/cards/white/027-wanderer-boot.svg'
 import card27 from '../assets/cards/white/028-porcelain-teapot.svg'
