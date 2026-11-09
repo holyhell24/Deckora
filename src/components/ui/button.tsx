@@ -9,7 +9,8 @@ const buttonVariants = cva(
     variants: {
       variant: {
         primary: 'bg-slate-900 text-white hover:bg-slate-700',
-        secondary: 'border border-slate-300 bg-white text-slate-900 hover:bg-slate-100',
+        secondary:
+          'border border-slate-300 bg-white text-slate-900 hover:bg-slate-100',
       },
       size: {
         sm: 'h-8 px-3 text-sm',
@@ -21,9 +22,16 @@ const buttonVariants = cva(
   },
 )
 
-type ButtonProps = ComponentProps<'button'> & VariantProps<typeof buttonVariants>
+type ButtonProps = ComponentProps<'button'> &
+  VariantProps<typeof buttonVariants>
 
-export function Button({ className, variant, size, type = 'button', ...props }: ButtonProps) {
+export function Button({
+  className,
+  variant,
+  size,
+  type = 'button',
+  ...props
+}: ButtonProps) {
   return (
     <button
       type={type}

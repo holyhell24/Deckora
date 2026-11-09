@@ -1,1 +1,100 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="256" height="384" viewBox="0 0 256 384"><defs><linearGradient id="bg" x2="1" y2="1"><stop stop-color="#34424a"/><stop offset="1" stop-color="#111a22"/></linearGradient><radialGradient id="halo"><stop stop-color="#d9e3e8" stop-opacity=".13"/><stop offset="1" stop-color="#d9e3e8" stop-opacity="0"/></radialGradient></defs><rect x=".5" y=".5" width="255" height="383" rx="16" fill="url(#bg)" stroke="#d9e3e8" stroke-opacity=".4"/><rect x="13" y="13" width="230" height="358" rx="8" fill="none" stroke="#d9e3e8" stroke-opacity=".18"/><circle cx="128" cy="170" r="100" fill="url(#halo)"/><g fill="none" stroke="#d9e3e8" stroke-opacity=".2"><circle cx="128" cy="170" r="70"/><rect x="74" y="116" width="108" height="108" rx="18" transform="rotate(45 128 170)"/><rect x="89" y="131" width="78" height="78" rx="12" transform="rotate(45 128 170)"/></g><g fill="#d9e3e8" stroke="#d9e3e8" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="m128 124 11 35 35 11-35 11-11 35-11-35-35-11 35-11Z" fill="none"/><path d="m128 140 8 30-8 30-8-30Z"/></g><text x="128" y="36" text-anchor="middle" fill="#d9e3e8" font-family="Arial,sans-serif" font-size="9" letter-spacing="3">003</text><text x="128" y="331" text-anchor="middle" fill="#d9e3e8" font-family="Georgia,serif" font-size="24">Ivory Compass</text><text x="128" y="355" text-anchor="middle" fill="#d9e3e8" opacity=".65" font-family="Arial,sans-serif" font-size="8" letter-spacing="2">DECKORA COLLECTION</text></svg>
+<svg
+  xmlns="http://www.w3.org/2000/svg"
+  width="256"
+  height="384"
+  viewBox="0 0 256 384"
+>
+  <defs>
+    <linearGradient id="bg" x2="1" y2="1">
+      <stop stop-color="#34424a" />
+      <stop offset="1" stop-color="#111a22" />
+    </linearGradient>
+    <radialGradient id="halo">
+      <stop stop-color="#d9e3e8" stop-opacity=".13" />
+      <stop offset="1" stop-color="#d9e3e8" stop-opacity="0" />
+    </radialGradient>
+  </defs>
+  <rect
+    x=".5"
+    y=".5"
+    width="255"
+    height="383"
+    rx="16"
+    fill="url(#bg)"
+    stroke="#d9e3e8"
+    stroke-opacity=".4"
+  />
+  <rect
+    x="13"
+    y="13"
+    width="230"
+    height="358"
+    rx="8"
+    fill="none"
+    stroke="#d9e3e8"
+    stroke-opacity=".18"
+  />
+  <circle cx="128" cy="170" r="100" fill="url(#halo)" />
+  <g fill="none" stroke="#d9e3e8" stroke-opacity=".2">
+    <circle cx="128" cy="170" r="70" />
+    <rect
+      x="74"
+      y="116"
+      width="108"
+      height="108"
+      rx="18"
+      transform="rotate(45 128 170)"
+    />
+    <rect
+      x="89"
+      y="131"
+      width="78"
+      height="78"
+      rx="12"
+      transform="rotate(45 128 170)"
+    />
+  </g>
+  <g
+    fill="#d9e3e8"
+    stroke="#d9e3e8"
+    stroke-width="1.7"
+    stroke-linecap="round"
+    stroke-linejoin="round"
+  >
+    <path d="m128 124 11 35 35 11-35 11-11 35-11-35-35-11 35-11Z" fill="none" />
+    <path d="m128 140 8 30-8 30-8-30Z" />
+  </g>
+  <text
+    x="128"
+    y="36"
+    text-anchor="middle"
+    fill="#d9e3e8"
+    font-family="Arial,sans-serif"
+    font-size="9"
+    letter-spacing="3"
+  >
+    003
+  </text>
+  <text
+    x="128"
+    y="331"
+    text-anchor="middle"
+    fill="#d9e3e8"
+    font-family="Georgia,serif"
+    font-size="24"
+  >
+    Ivory Compass
+  </text>
+  <text
+    x="128"
+    y="355"
+    text-anchor="middle"
+    fill="#d9e3e8"
+    opacity=".65"
+    font-family="Arial,sans-serif"
+    font-size="8"
+    letter-spacing="2"
+  >
+    DECKORA COLLECTION
+  </text>
+</svg>
