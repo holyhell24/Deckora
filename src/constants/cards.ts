@@ -25,8 +25,6 @@ import card22 from '../assets/cards/gold/023-eternal-hourglass.svg'
 import card23 from '../assets/cards/gold/024-celestial-throne.svg'
 import card24 from '../assets/cards/gold/025-dawnbringer.svg'
 
-export const REQUIRED_CLICKS = 10
-
 export const CARDS: readonly Card[] = [
   { id: '001', name: 'Moonstone', rarity: 'White', image: card0 },
   { id: '002', name: 'Silent Leaf', rarity: 'White', image: card1 },
