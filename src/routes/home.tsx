@@ -252,28 +252,32 @@ export function HomePage() {
       )}
       <header className="flex w-full max-w-7xl flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <span className="text-sm font-semibold tracking-[0.3em]">DECKORA</span>
-        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:justify-end sm:gap-3">
-          <ThemeSelector />
-          <Collection
-            counts={progress.collection}
-            onExchange={exchangeCards}
-            exchangeMessage={progress.exchangeMessage}
-          />
-          <span className="rounded-full border border-amber-200/20 bg-amber-200/5 px-4 py-2 text-sm text-amber-200">
-            <span className="font-semibold tabular-nums">
-              {sparks.toLocaleString()}
-            </span>{' '}
-            {CURRENCY_NAME}
-          </span>
-          <Button
-            variant="secondary"
-            className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
-            aria-haspopup="dialog"
-            aria-controls="shop-dialog"
-            onClick={() => shopRef.current?.showModal()}
-          >
-            Shop
-          </Button>
+        <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <ThemeSelector />
+            <Collection
+              counts={progress.collection}
+              onExchange={exchangeCards}
+              exchangeMessage={progress.exchangeMessage}
+            />
+          </div>
+          <div className="flex items-center justify-center gap-2 sm:gap-3">
+            <span className="rounded-full border border-amber-200/20 bg-amber-200/5 px-4 py-2 text-sm text-amber-200">
+              <span className="font-semibold tabular-nums">
+                {sparks.toLocaleString()}
+              </span>{' '}
+              {CURRENCY_NAME}
+            </span>
+            <Button
+              variant="secondary"
+              className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
+              aria-haspopup="dialog"
+              aria-controls="shop-dialog"
+              onClick={() => shopRef.current?.showModal()}
+            >
+              Shop
+            </Button>
+          </div>
         </div>
       </header>
 
