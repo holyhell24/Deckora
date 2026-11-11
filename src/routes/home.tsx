@@ -698,6 +698,9 @@ export function HomePage() {
           />
         </div>
       </dialog>
+      <footer className="w-full py-3 text-center text-xs text-stone-500">
+        Deckora v{__APP_VERSION__}
+      </footer>
     </main>
   )
 }
