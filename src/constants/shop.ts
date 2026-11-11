@@ -1,5 +1,6 @@
 import type { UpgradeId } from '../types/upgrade'
 import type { Rarity } from '../types/card'
+import { SHOP_COST_MULTIPLIER } from './cost-multiplier'
 
 const UPGRADE_CARD_TIERS: readonly Rarity[] = [
   'White',
@@ -57,7 +58,7 @@ export const UPGRADES = [
 }[]
 
 export const getUpgradeCost = (baseCost: number, level: number) =>
-  Math.ceil(baseCost * 1.5 ** level)
+  Math.ceil(baseCost * SHOP_COST_MULTIPLIER ** level)
 
 export const getCriticalChance = (level: number) => Math.min(level * 0.05, 0.5)
 
