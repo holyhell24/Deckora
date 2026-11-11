@@ -1,6 +1,24 @@
 import type { SavedGame } from '../types/save'
+import type { Rarity } from '../types/card'
+import type { UpgradeId } from '../types/upgrade'
+import { getUpgradeCardRequirements } from '../constants/shop'
 
 export const SAVE_KEY = 'deckora.save.v1'
+const UPGRADE_IDS: readonly UpgradeId[] = [
+  'power',
+  'progress',
+  'mastery',
+  'fortune',
+  'critical',
+  'auto',
+]
+const CARD_RARITIES: readonly Rarity[] = [
+  'White',
+  'Green',
+  'Blue',
+  'Purple',
+  'Gold',
+]
 
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
@@ -31,6 +49,18 @@ export function parseSavedGame(
     if (save.levels.progress !== undefined && !isCount(save.levels.progress))
       return null
     if (save.levels.critical > 10) return null
+    if (
+      save.cardRequirements !== undefined &&
+      (!save.cardRequirements ||
+        typeof save.cardRequirements !== 'object' ||
+        Array.isArray(save.cardRequirements) ||
+        !UPGRADE_IDS.every(
+          (id) =>
+            save.cardRequirements[id] === null ||
+            CARD_RARITIES.includes(save.cardRequirements[id]),
+        ))
+    )
+      return null
     if (
       save.consumablePurchases !== undefined &&
       (!save.consumablePurchases ||
@@ -73,6 +103,16 @@ export function parseSavedGame(
         critical: save.levels.critical,
         auto: save.levels.auto,
       },
+      cardRequirements:
+        save.cardRequirements ??
+        getUpgradeCardRequirements({
+          power: save.levels.power,
+          progress: save.levels.progress ?? 0,
+          mastery: save.levels.mastery,
+          fortune: save.levels.fortune,
+          critical: save.levels.critical,
+          auto: save.levels.auto,
+        }),
       collection: { ...save.collection },
       consumablePurchases: {
         'spark-tonic': save.consumablePurchases?.['spark-tonic'] ?? 0,

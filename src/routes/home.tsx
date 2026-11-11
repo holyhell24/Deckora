@@ -60,6 +60,14 @@ const INITIAL_VALUES = {
     critical: 0,
     auto: 0,
   } as UpgradeLevels,
+  cardRequirements: {
+    auto: null,
+    power: null,
+    progress: null,
+    mastery: null,
+    fortune: null,
+    critical: null,
+  },
   clickMessage: '',
   shopMessage: '',
   collection: {} as CollectionCounts,
@@ -85,6 +93,8 @@ export function HomePage() {
     requiredClicks:
       restoredGame?.requiredClicks ?? INITIAL_VALUES.requiredClicks,
     levels: restoredGame?.levels ?? INITIAL_VALUES.levels,
+    cardRequirements:
+      restoredGame?.cardRequirements ?? INITIAL_VALUES.cardRequirements,
     clickMessage: INITIAL_VALUES.clickMessage,
     shopMessage: INITIAL_VALUES.shopMessage,
     collection: restoredGame?.collection ?? INITIAL_VALUES.collection,
@@ -161,6 +171,7 @@ export function HomePage() {
       completedRounds,
       requiredClicks,
       levels,
+      cardRequirements: progress.cardRequirements,
       collection: progress.collection,
       boosts: progress.boosts,
       consumablePurchases: progress.consumablePurchases,
@@ -174,6 +185,7 @@ export function HomePage() {
     completedRounds,
     requiredClicks,
     levels,
+    progress.cardRequirements,
     progress.collection,
     progress.boosts,
     progress.consumablePurchases,
@@ -297,12 +309,13 @@ export function HomePage() {
   }
 
   function buyUpgrade(id: UpgradeId, cardId?: string) {
+    const nextCardRequirement = getUpgradeCardRarity(levels[id] + 1)
     setProgress((previous) => {
       const upgrade = UPGRADES.find((item) => item.id === id)!
       const cost = getUpgradeCost(upgrade.baseCost, previous.levels[id])
       if (previous.sparks < cost) return previous
       if (id === 'critical' && previous.levels.critical >= 10) return previous
-      const rarity = getUpgradeCardRarity(previous.levels[id])
+      const rarity = previous.cardRequirements[id]
       const paymentCard = CARDS.find(
         (card) => card.id === cardId && card.rarity === rarity,
       )
@@ -322,6 +335,10 @@ export function HomePage() {
               }
             : previous.collection,
         levels: { ...previous.levels, [id]: previous.levels[id] + 1 },
+        cardRequirements: {
+          ...previous.cardRequirements,
+          [id]: nextCardRequirement,
+        },
         shopMessage: `${upgrade.name} upgraded to level ${previous.levels[id] + 1}.`,
       }
     })
@@ -675,6 +692,7 @@ export function HomePage() {
             collection={progress.collection}
             balance={sparks}
             levels={levels}
+            cardRequirements={progress.cardRequirements}
             onBuy={buyUpgrade}
             message={progress.shopMessage}
           />

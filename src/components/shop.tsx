@@ -1,14 +1,10 @@
 import { CURRENCY_NAME } from '../constants/clicker'
-import {
-  getUpgradeCardRarity,
-  getUpgradeCost,
-  getUpgradeEffect,
-  UPGRADES,
-} from '../constants/shop'
+import { getUpgradeCost, getUpgradeEffect, UPGRADES } from '../constants/shop'
 import { useState } from 'react'
 import { CARDS } from '../constants/cards'
 import type { CollectionCounts } from '../types/collection'
 import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
+import type { Rarity } from '../types/card'
 import { Button } from './ui/button'
 import { Consumables } from './consumables'
 import type {
@@ -20,6 +16,7 @@ import type {
 type ShopProps = {
   balance: number
   levels: UpgradeLevels
+  cardRequirements: Record<UpgradeId, Rarity | null>
   onBuy: (id: UpgradeId, cardId?: string) => void
   collection: CollectionCounts
   message: string
@@ -32,6 +29,7 @@ type ShopProps = {
 export function Shop({
   balance,
   levels,
+  cardRequirements,
   onBuy,
   message,
   collection,
@@ -87,7 +85,7 @@ export function Shop({
           const maxed =
             (upgrade.id === 'critical' && level >= 10) ||
             (upgrade.id === 'mastery' && level >= 10)
-          const rarity = getUpgradeCardRarity(level)
+          const rarity = cardRequirements[upgrade.id]
           const availableCards = CARDS.filter(
             (card) => card.rarity === rarity && collection[card.id] > 0,
           ).sort((a, b) => collection[b.id] - collection[a.id])

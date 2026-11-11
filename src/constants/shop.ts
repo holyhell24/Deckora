@@ -1,4 +1,4 @@
-import type { UpgradeId } from '../types/upgrade'
+import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
 import type { Rarity } from '../types/card'
 
 const UPGRADE_CARD_TIERS: readonly Rarity[] = [
@@ -13,10 +13,24 @@ export const AUTO_REWARD_PER_LEVEL = 5
 export const PROGRESS_REWARD_PER_LEVEL = 2
 export const SHOP_COST_MULTIPLIER = 1.2
 
-// `level` is the currently owned level: the first card payment is level 10 -> 11.
+// `level` is the currently owned level; card requirements begin at level 10.
 export function getUpgradeCardRarity(level: number): Rarity | null {
   if (level < 10) return null
+  if (Math.random() >= 0.5) return null
   return UPGRADE_CARD_TIERS[Math.min(Math.floor(level / 10) - 1, 4)]
+}
+
+export function getUpgradeCardRequirements(
+  levels: UpgradeLevels,
+): Record<UpgradeId, Rarity | null> {
+  return {
+    power: getUpgradeCardRarity(levels.power),
+    progress: getUpgradeCardRarity(levels.progress),
+    mastery: getUpgradeCardRarity(levels.mastery),
+    fortune: getUpgradeCardRarity(levels.fortune),
+    critical: getUpgradeCardRarity(levels.critical),
+    auto: getUpgradeCardRarity(levels.auto),
+  }
 }
 
 export const UPGRADES = [
