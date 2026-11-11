@@ -1,4 +1,4 @@
-export const BOOST_CLICKS = 50
+export const BOOST_CLICKS = 100
 export const CONSUMABLE_PRICE_GROWTH = 1.5
 export const getConsumableCost = (baseCost: number, purchases: number) =>
   Math.ceil(baseCost * CONSUMABLE_PRICE_GROWTH ** purchases)
@@ -8,14 +8,14 @@ export const CONSUMABLES = [
     name: 'Spark Tonic',
     cost: 40,
     description:
-      'Double Sparks for your next 50 manual clicks. Includes critical rewards.',
+      'Double Sparks for your next 100 manual clicks. Includes critical rewards.',
   },
   {
     id: 'focus-tonic',
     name: 'Focus Tonic',
     cost: 60,
     description:
-      'Double progress for your next 50 manual clicks. Combines with critical clicks.',
+      'Double progress for your next 100 manual clicks. Combines with critical clicks.',
   },
   {
     id: 'reveal-dust',

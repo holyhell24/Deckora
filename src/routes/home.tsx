@@ -9,9 +9,11 @@ import type { CollectionCounts } from '../types/collection'
 import { Button } from '../components/ui/button'
 import { Shop } from '../components/shop'
 import {
+  AUTO_REWARD_PER_LEVEL,
   getCriticalChance,
   getUpgradeCardRarity,
   getUpgradeCost,
+  PROGRESS_REWARD_PER_LEVEL,
   UPGRADES,
 } from '../constants/shop'
 import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
@@ -52,6 +54,7 @@ const INITIAL_VALUES = {
   requiredClicks: getClickTarget(0),
   levels: {
     power: 0,
+    progress: 0,
     mastery: 0,
     fortune: 0,
     critical: 0,
@@ -99,7 +102,10 @@ export function HomePage() {
   const obtained = currentCount >= requiredClicks
   const sparkBoost = progress.boosts.sparkClicks > 0
   const focusBoost = progress.boosts.focusClicks > 0
-  const progressPerClick = (levels.power + 1) * (focusBoost ? 2 : 1)
+  const progressPerClick =
+    (levels.power + 1 + levels.progress * PROGRESS_REWARD_PER_LEVEL) *
+    (focusBoost ? 2 : 1)
+  const familiarRewardPerSecond = levels.auto * AUTO_REWARD_PER_LEVEL
   const sparksPerClick =
     (levels.power + 1 + levels.fortune * 2) * (sparkBoost ? 2 : 1)
   const nextTarget = getClickTarget(completedRounds + 1, levels.mastery)
@@ -184,13 +190,14 @@ export function HomePage() {
         )
           return previous
         const nextCount = Math.min(
-          previous.currentCount + previous.levels.auto,
+          previous.currentCount + previous.levels.auto * AUTO_REWARD_PER_LEVEL,
           previous.requiredClicks,
         )
         return {
           ...previous,
           currentCount: nextCount,
-          sparks: previous.sparks + previous.levels.auto,
+          sparks:
+            previous.sparks + previous.levels.auto * AUTO_REWARD_PER_LEVEL,
           collection:
             nextCount === previous.requiredClicks
               ? {
@@ -344,7 +351,7 @@ export function HomePage() {
     const critical = criticalRoll < getCriticalChance(levels.critical)
     if (
       currentCount +
-        (levels.power + 1) *
+        (levels.power + 1 + levels.progress * PROGRESS_REWARD_PER_LEVEL) *
           (critical ? 2 : 1) *
           (progress.boosts.focusClicks > 0 ? 2 : 1) <
       requiredClicks
@@ -360,7 +367,9 @@ export function HomePage() {
         (previous.boosts.sparkClicks > 0 ? 2 : 1)
       const nextCount = Math.min(
         previous.currentCount +
-          (previous.levels.power + 1) *
+          (previous.levels.power +
+            1 +
+            previous.levels.progress * PROGRESS_REWARD_PER_LEVEL) *
             multiplier *
             (previous.boosts.focusClicks > 0 ? 2 : 1),
         previous.requiredClicks,
@@ -565,13 +574,13 @@ export function HomePage() {
                   ) : (
                     <dd className="mt-1.5 space-y-1 text-sm tabular-nums text-amber-200">
                       <span className="block">
-                        +{levels.auto.toLocaleString()}
+                        +{familiarRewardPerSecond.toLocaleString()}
                         <span className="ml-1 text-[11px] font-normal text-stone-400">
                           progress
                         </span>
                       </span>
                       <span className="block">
-                        +{levels.auto.toLocaleString()}
+                        +{familiarRewardPerSecond.toLocaleString()}
                         <span className="ml-1 text-[11px] font-normal text-stone-400">
                           {CURRENCY_NAME}
                         </span>

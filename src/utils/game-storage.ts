@@ -28,6 +28,8 @@ export function parseSavedGame(
       )
     )
       return null
+    if (save.levels.progress !== undefined && !isCount(save.levels.progress))
+      return null
     if (save.levels.critical > 10) return null
     if (
       save.consumablePurchases !== undefined &&
@@ -65,6 +67,7 @@ export function parseSavedGame(
       requiredClicks: save.requiredClicks,
       levels: {
         power: save.levels.power,
+        progress: save.levels.progress ?? 0,
         mastery: save.levels.mastery,
         fortune: save.levels.fortune,
         critical: save.levels.critical,
