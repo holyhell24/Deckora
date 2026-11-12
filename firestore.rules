@@ -6,10 +6,49 @@ service cloud.firestore {
       return request.auth != null;
     }
 
+    function validNickname(nickname) {
+      return nickname is string && nickname.matches('^[A-Za-z0-9]{3,15}$');
+    }
+
     match /users/{userId} {
       allow get: if signedIn() && request.auth.uid == userId;
       allow list: if false;
-      allow create, update, delete: if false;
+      allow create: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['nickname'])
+        && request.resource.data.keys().hasAll(['nickname'])
+        && validNickname(request.resource.data.nickname)
+        && getAfter(
+          /databases/$(database)/documents/nicknameClaims/$(request.resource.data.nickname.lower())
+        ).data.uid == request.auth.uid;
+      allow update: if signedIn()
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly(['nickname'])
+        && request.resource.data.keys().hasAll(['nickname'])
+        && validNickname(request.resource.data.nickname)
+        && getAfter(
+          /databases/$(database)/documents/nicknameClaims/$(request.resource.data.nickname.lower())
+        ).data.uid == request.auth.uid;
+      allow delete: if false;
+    }
+
+    match /nicknameClaims/{nickname} {
+      allow get: if signedIn();
+      allow list: if false;
+      allow create: if signedIn()
+        && nickname.matches('^[a-z0-9]{3,15}$')
+        && request.resource.data.keys().hasOnly(['uid'])
+        && request.resource.data.keys().hasAll(['uid'])
+        && request.resource.data.uid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.nickname.lower() == nickname;
+      allow delete: if signedIn()
+        && resource.data.uid == request.auth.uid
+        && getAfter(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.nickname.lower() != nickname;
+      allow update: if false;
     }
 
     match /{document=**} {

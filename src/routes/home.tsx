@@ -474,6 +474,11 @@ export function HomePage() {
     return (
       <AccountAccess
         status={accountSession.account.status}
+        email={
+          accountSession.account.status === 'profileRequired'
+            ? accountSession.account.email
+            : undefined
+        }
         error={
           accountSession.account.status === 'error'
             ? accountSession.account.error
@@ -481,11 +486,17 @@ export function HomePage() {
         }
         saving={accountSession.saving}
         actionError={accountSession.actionError}
-        onLogin={(username, password) => {
-          accountSession.login({ username, password });
+        onLogin={(email, password) => {
+          accountSession.login(email, password);
         }}
-        onRegister={(username, password, nickname) => {
-          accountSession.register({ username, password, nickname });
+        onRegister={(email, password, nickname) => {
+          void accountSession.register({ email, password, nickname });
+        }}
+        onCompleteProfile={(nickname) => {
+          void accountSession.completeProfile(nickname);
+        }}
+        onSignOut={() => {
+          void accountSession.signOutAccount();
         }}
         onRetry={accountSession.retry}
       />
@@ -516,7 +527,7 @@ export function HomePage() {
             {accountSession.account.profile.nickname}
           </span>
           <ProfileDialog
-            username={accountSession.account.profile.username}
+            email={accountSession.account.profile.email}
             nickname={accountSession.account.profile.nickname}
             saving={accountSession.saving}
             error={accountSession.actionError}

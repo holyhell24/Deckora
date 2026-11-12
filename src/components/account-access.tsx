@@ -2,12 +2,15 @@ import { useState, type FormEvent } from 'react';
 import { Button } from './ui/button';
 
 type AccountAccessProps = {
-  status: 'loading' | 'signedOut' | 'error';
+  status: 'loading' | 'signedOut' | 'profileRequired' | 'error';
+  email?: string;
   error?: string;
   saving: boolean;
   actionError: string;
-  onLogin: (username: string, password: string) => void;
-  onRegister: (username: string, password: string, nickname: string) => void;
+  onLogin: (email: string, password: string) => void;
+  onRegister: (email: string, password: string, nickname: string) => void;
+  onCompleteProfile: (nickname: string) => void;
+  onSignOut: () => void;
   onRetry: () => void;
 };
 
@@ -15,24 +18,29 @@ type FormMode = 'login' | 'register';
 
 export function AccountAccess({
   status,
+  email: accountEmail,
   error,
   saving,
   actionError,
   onLogin,
   onRegister,
+  onCompleteProfile,
+  onSignOut,
   onRetry,
 }: AccountAccessProps) {
   const [mode, setMode] = useState<FormMode>('login');
-  const [username, setUsername] = useState('');
+  const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [nickname, setNickname] = useState('');
 
   function handleSubmit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
-    if (mode === 'login') {
-      onLogin(username, password);
+    if (status === 'profileRequired') {
+      onCompleteProfile(nickname);
+    } else if (mode === 'login') {
+      onLogin(email, password);
     } else {
-      onRegister(username, password, nickname);
+      onRegister(email, password, nickname);
     }
   }
 
@@ -48,9 +56,11 @@ export function AccountAccess({
         <h1 id="account-heading" className="mt-2 font-serif text-3xl">
           {status === 'error'
             ? 'Could not load profile'
-            : mode === 'login'
-              ? 'Sign in'
-              : 'Create account'}
+            : status === 'profileRequired'
+              ? 'Choose a nickname'
+              : mode === 'login'
+                ? 'Sign in'
+                : 'Create account'}
         </h1>
 
         {status === 'loading' && (
@@ -72,6 +82,55 @@ export function AccountAccess({
               Try again
             </Button>
           </div>
+        )}
+
+        {status === 'profileRequired' && (
+          <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+            <p className="text-sm text-stone-400">
+              Signed in as {accountEmail}. Choose a 3–15 character nickname
+              using letters and numbers.
+            </p>
+            <label htmlFor="nickname" className="block text-sm text-stone-300">
+              Nickname
+              <input
+                id="nickname"
+                name="nickname"
+                type="text"
+                required
+                minLength={3}
+                maxLength={15}
+                pattern="[A-Za-z0-9]{3,15}"
+                autoComplete="nickname"
+                autoCapitalize="none"
+                spellCheck={false}
+                value={nickname}
+                onChange={(event) => setNickname(event.target.value)}
+                className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+              />
+            </label>
+            {actionError && (
+              <p role="alert" className="text-sm text-amber-200">
+                {actionError}
+              </p>
+            )}
+            <div className="flex gap-2">
+              <Button
+                variant="secondary"
+                onClick={onSignOut}
+                className="flex-1 cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
+              >
+                Sign out
+              </Button>
+              <Button
+                variant="secondary"
+                type="submit"
+                disabled={saving}
+                className="flex-1 cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
+              >
+                {saving ? 'Saving…' : 'Save nickname'}
+              </Button>
+            </div>
+          </form>
         )}
 
         {status === 'signedOut' && (
@@ -99,32 +158,30 @@ export function AccountAccess({
             <form onSubmit={handleSubmit} className="mt-5 space-y-4">
               {mode === 'register' && (
                 <p className="text-sm text-stone-400">
-                  Choose a 3–15 character nickname using letters and numbers
+                  Choose a 3–15 character nickname using letters and numbers.
+                  Nickname capitalization is preserved.
                 </p>
               )}
-              <label
-                htmlFor="username"
-                className="block text-sm text-stone-300"
-              >
-                Username
+              <label htmlFor="email" className="block text-sm text-stone-300">
+                Email
                 <input
-                  id="username"
-                  name="username"
-                  type="text"
+                  id="email"
+                  name="email"
+                  type="email"
                   required
-                  minLength={3}
-                  maxLength={15}
-                  pattern="[A-Za-z0-9]{3,15}"
-                  autoComplete="username"
+                  maxLength={254}
+                  autoComplete="email"
                   autoCapitalize="none"
                   spellCheck={false}
-                  value={username}
-                  onChange={(event) => setUsername(event.target.value)}
+                  value={email}
+                  onChange={(event) => setEmail(event.target.value)}
                   className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
                 />
-                <p className="text-xs text-stone-500">
-                  Username to sign in with
-                </p>
+                {mode === 'register' && (
+                  <p className="text-xs text-stone-500">
+                    Email to sign in with. You can use a fake email if you want.
+                  </p>
+                )}
               </label>
 
               <label
@@ -146,35 +203,38 @@ export function AccountAccess({
                   onChange={(event) => setPassword(event.target.value)}
                   className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
                 />
-                <p className="text-xs text-stone-500">
-                  I don't need your password. Just use 123
-                </p>
+                {mode === 'register' && (
+                  <p className="text-xs text-stone-500">
+                    I don't need your password. Just use 123456
+                  </p>
+                )}
               </label>
 
               {mode === 'register' && (
-                <>
-                  <label
-                    htmlFor="nickname"
-                    className="block text-sm text-stone-300"
-                  >
-                    Nickname
-                    <input
-                      id="nickname"
-                      name="nickname"
-                      type="text"
-                      required
-                      minLength={3}
-                      maxLength={15}
-                      pattern="[A-Za-z0-9]{3,15}"
-                      autoComplete="nickname"
-                      autoCapitalize="none"
-                      spellCheck={false}
-                      value={nickname}
-                      onChange={(event) => setNickname(event.target.value)}
-                      className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
-                    />
-                  </label>
-                </>
+                <label
+                  htmlFor="nickname"
+                  className="block text-sm text-stone-300"
+                >
+                  Nickname
+                  <input
+                    id="nickname"
+                    name="nickname"
+                    type="text"
+                    required
+                    minLength={3}
+                    maxLength={15}
+                    pattern="[A-Za-z0-9]{3,15}"
+                    autoComplete="nickname"
+                    autoCapitalize="none"
+                    spellCheck={false}
+                    value={nickname}
+                    onChange={(event) => setNickname(event.target.value)}
+                    className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+                  />
+                  {mode === 'register' && (
+                    <p className="text-xs text-stone-500">Display name</p>
+                  )}
+                </label>
               )}
 
               {actionError && (

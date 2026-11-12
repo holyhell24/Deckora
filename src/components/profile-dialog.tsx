@@ -3,7 +3,7 @@ import { closeDialogOnBackdropClick } from '../utils/dialog';
 import { Button } from './ui/button';
 
 type ProfileDialogProps = {
-  username: string;
+  email: string;
   nickname: string;
   saving: boolean;
   error: string;
@@ -12,7 +12,7 @@ type ProfileDialogProps = {
 };
 
 export function ProfileDialog({
-  username,
+  email,
   nickname,
   saving,
   error,
@@ -33,7 +33,6 @@ export function ProfileDialog({
     <>
       <Button
         variant="secondary"
-        size="sm"
         aria-haspopup="dialog"
         aria-controls="profile-dialog"
         className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
@@ -48,16 +47,31 @@ export function ProfileDialog({
         ref={dialogRef}
         id="profile-dialog"
         aria-labelledby="profile-heading"
-        className="fixed left-1/2 top-1/2 m-0 max-h-[90vh] w-[calc(100%-2rem)] max-w-sm -translate-x-1/2 -translate-y-1/2 overflow-y-auto rounded-xl border border-white/10 bg-surface p-6 text-stone-100 backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+        className="fixed inset-0 m-auto h-fit max-h-[90dvh] w-[calc(100%-2rem)] max-w-sm overscroll-contain overflow-y-auto rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
         onClick={closeDialogOnBackdropClick}
       >
-        <h2 id="profile-heading" className="font-serif text-2xl">
-          Your profile
-        </h2>
-        <p className="mt-3 text-sm text-stone-400">
-          Signed in as <span className="text-stone-200">{username}</span>
-        </p>
-        <form onSubmit={handleSubmit} className="mt-5 space-y-4">
+        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-6">
+          <div>
+            <h2
+              id="profile-heading"
+              className="font-serif text-2xl sm:text-3xl"
+            >
+              Your profile
+            </h2>
+            <p className="mt-2 text-sm text-stone-400">
+              Signed in as <span className="text-stone-200">{email}</span>
+            </p>
+          </div>
+          <Button
+            size="sm"
+            aria-label="Close profile"
+            className="cursor-pointer bg-white/5 hover:bg-white/10"
+            onClick={() => dialogRef.current?.close()}
+          >
+            Close
+          </Button>
+        </div>
+        <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-6">
           <label
             htmlFor="profile-nickname"
             className="block text-sm text-stone-300"
@@ -104,10 +118,10 @@ export function ProfileDialog({
                 Cancel
               </Button>
               <Button
-                variant="primary"
+                variant="secondary"
                 type="submit"
                 disabled={saving}
-                className="cursor-pointer"
+                className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
               >
                 {saving ? 'Saving…' : 'Save'}
               </Button>

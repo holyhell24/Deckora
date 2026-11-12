@@ -12,19 +12,20 @@ npm run dev
 `npm run build` checks TypeScript and builds for production. `npm run lint` runs Oxlint. `npm run preview` serves the production build locally.
 
 Firebase is initialized from the project configuration in `src/firebase.ts`.
-Create a Firestore database and deploy the rules and account functions with
-`npx firebase-tools deploy --project deckora-c8b26 --only firestore:rules,functions`.
-If prompted to authenticate first, run `npx firebase-tools login`.
-Cloud Functions deployment requires the Firebase project to use the Blaze
-plan. The app uses a username, password, and separate nickname; usernames and
-nicknames are unique without regard to capitalization, while nickname casing
-is preserved. Nicknames must be 3–15 letters or numbers. Passwords are stored
-as salted scrypt hashes by the trusted Functions backend. Short passwords are
-easy to guess, and there is no password-reset flow because accounts do not use
-email addresses. Existing anonymous profiles are not migrated. To automatically
-clean up the login rate-limit records, configure Firestore TTL on the
-`authRateLimits.expiresAt` field. Game progress continues to be stored locally
-in the browser. Firestore client access is restricted by `firestore.rules`.
+Enable Email/Password sign-in in Firebase Authentication and create a Firestore
+database. Deploy the Firestore rules with
+`npx firebase-tools deploy --project deckora-c8b26 --only firestore:rules`. If
+prompted to authenticate first, run `npx firebase-tools login`. This setup uses
+Firebase Authentication directly and does not require the Blaze plan.
+
+The app uses email/password accounts and a separate nickname. Nicknames are
+unique without regard to capitalization, preserve the casing entered, and
+must be 3–15 letters or numbers. Firebase Authentication requires passwords
+with at least 6 characters. Existing anonymous profiles are not migrated.
+Existing anonymous or username-only profiles are not migrated, and any
+previously deployed Cloud Functions must be removed separately. Game progress
+continues to be stored locally in the browser. Firestore client access is
+restricted by `firestore.rules`.
 
 ## Structure
 

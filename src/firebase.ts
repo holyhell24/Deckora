@@ -1,7 +1,6 @@
 import { getApp, getApps, initializeApp } from '@firebase/app';
 import { getAuth } from '@firebase/auth';
 import { getFirestore } from '@firebase/firestore';
-import { getFunctions } from '@firebase/functions';
 
 const firebaseConfig = {
   apiKey: 'AIzaSyDNGcG7PtqVpfTxgD_M6rpxjvZ9aYZpcUo',
@@ -16,4 +15,3 @@ export const firebaseApp =
   getApps().length > 0 ? getApp() : initializeApp(firebaseConfig);
 export const auth = getAuth(firebaseApp);
 export const db = getFirestore(firebaseApp);
-export const functions = getFunctions(firebaseApp, 'us-central1');
