@@ -105,7 +105,8 @@ export function GameHeader({
             <span className="flex min-h-11 items-center rounded-full border border-amber-200/20 bg-amber-200/5 px-4 text-sm text-amber-200">
               <span className="font-semibold tabular-nums">
                 {sparks.toLocaleString()}
-              </span>{' '}
+              </span>
+              &nbsp;
               {CURRENCY_NAME}
             </span>
             <Button
