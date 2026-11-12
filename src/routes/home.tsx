@@ -22,7 +22,12 @@ import { CURRENCY_NAME, getClickTarget } from '../constants/clicker';
 import { RARITY_WEIGHTS } from '../constants/rarities';
 import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange';
 import type { Rarity } from '../types/card';
-import { loadGame, resetGame, saveGame } from '../utils/game-storage';
+import {
+  loadGame,
+  resetDataForRelease,
+  resetGame,
+  saveGame,
+} from '../utils/game-storage';
 import {
   BOOST_CLICKS,
   CONSUMABLES,
@@ -84,7 +89,8 @@ const INITIAL_VALUES = {
 export function HomePage() {
   const shopRef = useRef<HTMLDialogElement>(null);
   const resetProgressRef = useRef<HTMLDialogElement>(null);
-  const [storageError, setStorageError] = useState(false);
+  const [dataResetSucceeded] = useState(resetDataForRelease);
+  const [storageError, setStorageError] = useState(!dataResetSucceeded);
   const restoredGame = useMemo(
     () => loadGame(CARDS.map((card) => card.id)),
     [],
@@ -183,7 +189,10 @@ export function HomePage() {
       boosts: progress.boosts,
       consumablePurchases: progress.consumablePurchases,
     });
-    const notification = window.setTimeout(() => setStorageError(!saved), 0);
+    const notification = window.setTimeout(
+      () => setStorageError(!saved || !dataResetSucceeded),
+      0,
+    );
     return () => window.clearTimeout(notification);
   }, [
     card.id,
@@ -196,6 +205,7 @@ export function HomePage() {
     progress.collection,
     progress.boosts,
     progress.consumablePurchases,
+    dataResetSucceeded,
   ]);
 
   useEffect(() => {
@@ -467,7 +477,8 @@ export function HomePage() {
           role="status"
           className="fixed bottom-3 z-20 rounded-lg bg-surface px-4 py-2 text-xs text-amber-200"
         >
-          Browser storage is unavailable. Progress will not survive a reload.
+          Browser storage is unavailable. Progress and preferences may not
+          survive a reload.
         </p>
       )}
       <header className="flex w-full max-w-7xl flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">

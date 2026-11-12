@@ -7,9 +7,33 @@ import {
 import { RARITIES } from '../constants/rarities';
 
 export const SAVE_KEY = 'deckora.save.v1';
+const RELEASE_RESET_KEY = 'deckora.reset.1.1.0';
 
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
+
+export function resetDataForRelease(): boolean {
+  try {
+    if (localStorage.getItem(RELEASE_RESET_KEY) === 'complete') {
+      return true;
+    }
+
+    const appKeys = Array.from({ length: localStorage.length }, (_, index) =>
+      localStorage.key(index),
+    ).filter(
+      (key): key is string => key !== null && key.startsWith('deckora.'),
+    );
+
+    for (const key of appKeys) {
+      localStorage.removeItem(key);
+    }
+
+    localStorage.setItem(RELEASE_RESET_KEY, 'complete');
+    return true;
+  } catch {
+    return false;
+  }
+}
 
 export function parseSavedGame(
   raw: string,
