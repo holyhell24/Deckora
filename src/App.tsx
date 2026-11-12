@@ -1,14 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
-import { CollectibleCard } from './components/collectible-card';
-import { ThemeSelector } from './components/theme-selector';
-import { SoundToggle } from './components/sound-toggle';
 import { initializeSounds, playRevealSound, playSound } from './utils/sounds';
-import { Collection } from './components/collection';
-import { SpectralGifts } from './components/spectral-gifts';
 import type { CollectionCounts } from './types/collection';
 import { Button } from './components/ui/button';
-import { Shop } from './components/shop';
 import {
   AUTO_REWARD_PER_LEVEL,
   getCriticalChance,
@@ -40,12 +34,12 @@ import {
   getConsumableCost,
 } from './constants/consumables';
 import type { ConsumableId } from './types/consumable';
-import { ResetProgress } from './components/reset-progress';
-import { closeDialogOnBackdropClick } from './utils/dialog';
 import { useAccount } from './hooks/use-account';
 import { AccountAccess } from './components/account-access';
-import { ProfileDialog } from './components/profile-dialog';
 import type { SavedGame } from './types/save';
+import { GameCardStage } from './components/game-card-stage';
+import { GameHeader } from './components/game-header';
+import { GameShopDrawer } from './components/game-shop-drawer';
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS);
@@ -129,8 +123,6 @@ function getGameStorageError(error: unknown) {
 export default function App() {
   const accountSession = useAccount();
   const shopRef = useRef<HTMLDialogElement>(null);
-  const resetProgressRef = useRef<HTMLDialogElement>(null);
-  const settingsDrawerRef = useRef<HTMLDialogElement>(null);
   const [progress, setProgress] = useState<GameProgress>(INITIAL_VALUES);
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
     progress;
@@ -804,320 +796,60 @@ export default function App() {
           )}
         </div>
       )}
-      <header className="flex w-full max-w-7xl flex-wrap items-center justify-between gap-3 border-b border-white/10 pb-4">
-        <div className="flex min-w-0 items-center gap-3">
-          <button
-            type="button"
-            aria-label="Open settings"
-            aria-haspopup="dialog"
-            aria-controls="settings-drawer"
-            onClick={() => settingsDrawerRef.current?.showModal()}
-            className="flex size-11 shrink-0 cursor-pointer items-center justify-center rounded-lg text-stone-300 transition-colors hover:bg-white/5 hover:text-white focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200"
-          >
-            <svg
-              aria-hidden="true"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="1.8"
-              strokeLinecap="round"
-              className="size-6"
-            >
-              <path d="M4 6h16M4 12h16M4 18h16" />
-            </svg>
-          </button>
-          <div className="flex min-w-0 items-center gap-3">
-            <span className="shrink-0 text-sm font-semibold tracking-[0.3em]">
-              DECKORA
-            </span>
-            <span className="max-w-[45vw] truncate text-xs text-stone-400 sm:max-w-none">
-              {accountSession.account.profile.nickname}
-            </span>
-          </div>
-        </div>
-        <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
-          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:flex-nowrap sm:gap-3">
-            <SpectralGifts
-              uid={accountSession.account.profile.uid}
-              nickname={accountSession.account.profile.nickname}
-              counts={progress.collection}
-              onSend={handleSendSpectralGift}
-              onClaim={handleClaimSpectralGift}
-            />
-            <Collection
-              counts={progress.collection}
-              onExchange={exchangeCards}
-              exchangeMessage={progress.exchangeMessage}
-            />
-          </div>
-          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-3">
-            <span className="flex min-h-11 items-center rounded-full border border-amber-200/20 bg-amber-200/5 px-4 text-sm text-amber-200">
-              <span className="font-semibold tabular-nums">
-                {sparks.toLocaleString()}
-              </span>{' '}
-              {CURRENCY_NAME}
-            </span>
-            <Button
-              variant="secondary"
-              className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
-              aria-haspopup="dialog"
-              aria-controls="shop-dialog"
-              onClick={() => shopRef.current?.showModal()}
-            >
-              Shop
-            </Button>
-          </div>
-        </div>
-      </header>
-      <dialog
-        ref={settingsDrawerRef}
-        id="settings-drawer"
-        aria-labelledby="settings-heading"
-        className="settings-drawer fixed inset-y-0 left-0 right-auto m-0 h-dvh max-h-none w-[min(20rem,85vw)] overscroll-contain overflow-y-auto border-r border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
-        onClick={closeDialogOnBackdropClick}
-      >
-        <div className="flex min-h-full flex-col pb-[env(safe-area-inset-bottom)]">
-          <div className="flex items-center justify-between border-b border-white/10 px-5 pb-4 pt-[max(1rem,env(safe-area-inset-top))]">
-            <h2 id="settings-heading" className="font-serif text-2xl">
-              Settings
-            </h2>
-          </div>
-          <div className="flex flex-col gap-3 p-5 [&>button]:w-full [&>label]:w-full [&>label]:justify-between">
-            <ProfileDialog
-              email={accountSession.account.profile.email}
-              nickname={accountSession.account.profile.nickname}
-              saving={accountSession.saving}
-              error={accountSession.actionError}
-              onSave={accountSession.changeNickname}
-              onSignOut={() => {
-                void accountSession.signOutAccount();
-              }}
-            />
-            <SoundToggle />
-            <ResetProgress
-              onResetButtonClick={() => {
-                settingsDrawerRef.current?.close();
-                resetProgressRef.current?.showModal();
-              }}
-            />
-            <ThemeSelector />
-          </div>
-          <footer className="mt-auto border-t border-white/10 px-5 py-4 text-xs text-stone-500">
-            Deckora v{__APP_VERSION__}
-          </footer>
-        </div>
-      </dialog>
-      <dialog
-        ref={resetProgressRef}
-        id="reset-progress-dialog"
-        aria-labelledby="reset-progress-heading"
-        className="fixed inset-0 m-auto h-fit max-h-[90dvh] w-[calc(100%-2rem)] max-w-md overscroll-contain overflow-y-auto rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
-        onClick={closeDialogOnBackdropClick}
-      >
-        <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-6">
-          <h2
-            id="reset-progress-heading"
-            className="font-serif text-2xl sm:text-3xl"
-          >
-            Reset progress
-          </h2>
-        </div>
-        <div className="space-y-4 p-4 sm:p-6">
-          <p className="text-sm text-stone-300">
-            Are you sure you want to reset your progress? This action cannot be
-            undone.
-          </p>
-          <div className="flex justify-end gap-3">
-            <Button
-              aria-label="Yes"
-              className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
-              onClick={() => {
-                onResetButtonClick();
-                resetProgressRef.current?.close();
-              }}
-            >
-              Yes
-            </Button>
-            <Button
-              variant="secondary"
-              aria-label="No"
-              className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
-              onClick={() => {
-                resetProgressRef.current?.close();
-              }}
-            >
-              No
-            </Button>
-          </div>
-        </div>
-      </dialog>
+      <GameHeader
+        uid={accountSession.account.profile.uid}
+        email={accountSession.account.profile.email}
+        nickname={accountSession.account.profile.nickname}
+        saving={accountSession.saving}
+        accountError={accountSession.actionError}
+        sparks={sparks}
+        collection={progress.collection}
+        exchangeMessage={progress.exchangeMessage}
+        onSaveNickname={accountSession.changeNickname}
+        onSignOut={() => {
+          void accountSession.signOutAccount();
+        }}
+        onResetProgress={onResetButtonClick}
+        onSendGift={handleSendSpectralGift}
+        onClaimGift={handleClaimSpectralGift}
+        onExchange={exchangeCards}
+        onOpenShop={() => shopRef.current?.showModal()}
+      />
 
-      <div className="flex w-full max-w-5xl flex-1 flex-col items-center justify-start py-5 sm:justify-center sm:py-12">
-        <section
-          aria-label="Card clicker"
-          className="flex shrink-0 flex-col items-center"
-        >
-          <p className="mb-2 text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">
-            A discovery awaits
-          </p>
-          <p role="status" className="mb-4 text-center text-xs text-stone-400">
-            {obtained
-              ? `${card.name} is yours.`
-              : 'Every click brings it closer.'}
-          </p>
-          <CollectibleCard
-            card={card}
-            revealed={obtained}
-            currentCount={currentCount}
-            requiredClicks={requiredClicks}
-            disabled={!revealAnimationComplete}
-            onClick={handleCardClick}
-            onRevealAnimationEnd={() => {
-              if (loadedGameKey) {
-                setRevealAnimation({ gameKey: loadedGameKey, complete: true });
-              }
-            }}
-          />
-
-          <div className="mt-6 w-full max-w-xs">
-            <p
-              aria-live="polite"
-              aria-atomic="true"
-              className="text-center text-2xl font-light tabular-nums tracking-wider"
-            >
-              {currentCount.toLocaleString()}
-              <span className="mx-1 text-stone-600">/</span>
-              <span className="text-stone-400">
-                {requiredClicks.toLocaleString()}
-              </span>
-            </p>
-            <dl
-              className={`mt-4 grid overflow-hidden rounded-xl border border-white/10 text-center ${levels.auto > 0 ? 'grid-cols-2' : 'grid-cols-1'}`}
-            >
-              <div className="flex flex-col justify-center bg-white/5 px-3 py-2.5">
-                <dt className="text-[10px] font-medium uppercase tracking-[0.22em] text-stone-500">
-                  {obtained ? 'Next card' : 'Click'}
-                </dt>
-                {obtained ? (
-                  <dd className="mt-1.5 text-sm tabular-nums text-amber-200">
-                    {nextTarget.toLocaleString()}
-                    <span className="mt-0.5 block text-[11px] font-normal text-stone-400">
-                      progress
-                    </span>
-                  </dd>
-                ) : (
-                  <dd className="mt-1.5 space-y-1 text-sm tabular-nums text-amber-200">
-                    <span className="block">
-                      +{progressPerClick.toLocaleString()}
-                      <span className="ml-1 text-[11px] font-normal text-stone-400">
-                        progress
-                      </span>
-                    </span>
-                    <span className="block">
-                      +{sparksPerClick.toLocaleString()}
-                      <span className="ml-1 text-[11px] font-normal text-stone-400">
-                        {CURRENCY_NAME}
-                      </span>
-                    </span>
-                  </dd>
-                )}
-              </div>
-              {levels.auto > 0 && (
-                <div className="flex flex-col justify-center border-l border-white/10 bg-white/5 px-3 py-2.5">
-                  <dt className="text-[10px] font-medium uppercase tracking-[0.22em] text-stone-500">
-                    {obtained ? 'Familiar' : 'Per second'}
-                  </dt>
-                  {obtained ? (
-                    <dd className="mt-1.5 text-sm text-stone-400">Paused</dd>
-                  ) : (
-                    <dd className="mt-1.5 space-y-1 text-sm tabular-nums text-amber-200">
-                      <span className="block">
-                        +{familiarRewardPerSecond.toLocaleString()}
-                        <span className="ml-1 text-[11px] font-normal text-stone-400">
-                          progress
-                        </span>
-                      </span>
-                      <span className="block">
-                        +{familiarRewardPerSecond.toLocaleString()}
-                        <span className="ml-1 text-[11px] font-normal text-stone-400">
-                          {CURRENCY_NAME}
-                        </span>
-                      </span>
-                    </dd>
-                  )}
-                </div>
-              )}
-            </dl>
-            <div className="h-4 mt-3">
-              {(sparkBoost || focusBoost) && (
-                <ul className="flex flex-wrap justify-center gap-2">
-                  {sparkBoost && (
-                    <li className="rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-1 text-[11px] tabular-nums text-amber-200">
-                      2× {CURRENCY_NAME}
-                      <span className="text-amber-200/70">
-                        {' '}
-                        · {progress.boosts.sparkClicks} left
-                      </span>
-                    </li>
-                  )}
-                  {focusBoost && (
-                    <li className="rounded-full border border-amber-200/25 bg-amber-200/10 px-2.5 py-1 text-[11px] tabular-nums text-amber-200">
-                      2× progress
-                      <span className="text-amber-200/70">
-                        {' '}
-                        · {progress.boosts.focusClicks} left
-                      </span>
-                    </li>
-                  )}
-                </ul>
-              )}
-            </div>
-            <div className="h-4 mt-6">
-              <p
-                role="status"
-                className="mt-2 min-h-4 text-center text-xs text-amber-200"
-              >
-                {progress.clickMessage}
-              </p>
-            </div>
-          </div>
-        </section>
-      </div>
-      <dialog
-        ref={shopRef}
-        id="shop-dialog"
-        aria-labelledby="shop-heading"
-        className="shop-drawer fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none overscroll-contain w-full max-w-md overflow-y-auto border-l border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
-        onClick={closeDialogOnBackdropClick}
-      >
-        <div className="relative min-h-full pb-[env(safe-area-inset-bottom)]">
-          <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
-            <span className="text-sm text-amber-200">
-              {sparks.toLocaleString()} {CURRENCY_NAME}
-            </span>
-            <Button
-              aria-label="Close shop"
-              size="sm"
-              className="cursor-pointer bg-transparent text-stone-400 hover:bg-white/10 hover:text-white"
-              onClick={() => shopRef.current?.close()}
-            >
-              Close
-            </Button>
-          </div>
-          <Shop
-            consumablePurchases={progress.consumablePurchases}
-            boosts={progress.boosts}
-            revealed={obtained}
-            onBuyConsumable={buyConsumable}
-            collection={progress.collection}
-            balance={sparks}
-            levels={levels}
-            cardRequirements={progress.cardRequirements}
-            onBuy={buyUpgrade}
-            message={progress.shopMessage}
-          />
-        </div>
-      </dialog>
+      <GameCardStage
+        card={card}
+        obtained={obtained}
+        currentCount={currentCount}
+        requiredClicks={requiredClicks}
+        nextTarget={nextTarget}
+        revealAnimationComplete={revealAnimationComplete}
+        autoLevel={levels.auto}
+        progressPerClick={progressPerClick}
+        sparksPerClick={sparksPerClick}
+        familiarRewardPerSecond={familiarRewardPerSecond}
+        sparkBoostClicks={progress.boosts.sparkClicks}
+        focusBoostClicks={progress.boosts.focusClicks}
+        clickMessage={progress.clickMessage}
+        onCardClick={handleCardClick}
+        onRevealAnimationEnd={() => {
+          if (loadedGameKey) {
+            setRevealAnimation({ gameKey: loadedGameKey, complete: true });
+          }
+        }}
+      />
+      <GameShopDrawer
+        dialogRef={shopRef}
+        sparks={sparks}
+        consumablePurchases={progress.consumablePurchases}
+        boosts={progress.boosts}
+        obtained={obtained}
+        collection={progress.collection}
+        levels={levels}
+        cardRequirements={progress.cardRequirements}
+        message={progress.shopMessage}
+        onBuyConsumable={buyConsumable}
+        onBuyUpgrade={buyUpgrade}
+      />
     </main>
   );
 }
