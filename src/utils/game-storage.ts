@@ -6,29 +6,47 @@ import {
 } from '../constants/shop';
 import { RARITIES } from '../constants/rarities';
 
-export const SAVE_KEY = 'deckora.save.v1';
-const RELEASE_RESET_KEY = 'deckora.reset.1.1.0';
+const LEGACY_SAVE_KEY = 'deckora.save.v1';
+const CLICK_PROGRESS_KEY = 'deckora.click-progress.v1';
 
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 
-export function resetDataForRelease(): boolean {
+export function loadLegacyGame(
+  validCardIds: readonly string[],
+): SavedGame | null {
   try {
-    if (localStorage.getItem(RELEASE_RESET_KEY) === 'complete') {
-      return true;
-    }
+    const raw = localStorage.getItem(LEGACY_SAVE_KEY);
+    return raw ? parseSavedGame(raw, validCardIds) : null;
+  } catch {
+    return null;
+  }
+}
 
-    const appKeys = Array.from({ length: localStorage.length }, (_, index) =>
-      localStorage.key(index),
-    ).filter(
-      (key): key is string => key !== null && key.startsWith('deckora.'),
-    );
+export function removeLegacyGame(): boolean {
+  try {
+    localStorage.removeItem(LEGACY_SAVE_KEY);
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-    for (const key of appKeys) {
-      localStorage.removeItem(key);
-    }
+export function saveClickProgress(
+  progress: Pick<SavedGame, 'currentCount' | 'requiredClicks'>,
+): boolean {
+  try {
+    localStorage.setItem(CLICK_PROGRESS_KEY, JSON.stringify(progress));
+    return true;
+  } catch {
+    return false;
+  }
+}
 
-    localStorage.setItem(RELEASE_RESET_KEY, 'complete');
+export function resetLocalGameData(): boolean {
+  try {
+    localStorage.removeItem(LEGACY_SAVE_KEY);
+    localStorage.removeItem(CLICK_PROGRESS_KEY);
     return true;
   } catch {
     return false;
@@ -166,31 +184,5 @@ export function parseSavedGame(
     };
   } catch {
     return null;
-  }
-}
-
-export function resetGame() {
-  try {
-    localStorage.removeItem(SAVE_KEY);
-  } catch {
-    return null;
-  }
-}
-
-export function loadGame(validCardIds: readonly string[]): SavedGame | null {
-  try {
-    const raw = localStorage.getItem(SAVE_KEY);
-    return raw ? parseSavedGame(raw, validCardIds) : null;
-  } catch {
-    return null;
-  }
-}
-
-export function saveGame(save: SavedGame): boolean {
-  try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(save));
-    return true;
-  } catch {
-    return false;
   }
 }

@@ -24,8 +24,10 @@ must be 3–15 letters or numbers. Firebase Authentication requires passwords
 with at least 6 characters. Existing anonymous profiles are not migrated.
 Existing anonymous or username-only profiles are not migrated, and any
 previously deployed Cloud Functions must be removed separately. Game progress
-continues to be stored locally in the browser. Firestore client access is
-restricted by `firestore.rules`.
+is stored in Firestore per signed-in account. A pre-existing browser save is
+imported when the account has no cloud save. Only the current click count and
+target are mirrored in local storage; theme and sound preferences remain on
+the device. Firestore client access is restricted by `firestore.rules`.
 
 ## Structure
 

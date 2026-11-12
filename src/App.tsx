@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 import { CollectibleCard } from './components/collectible-card';
 import { ThemeSelector } from './components/theme-selector';
@@ -23,11 +23,15 @@ import { RARITY_WEIGHTS } from './constants/rarities';
 import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from './constants/exchange';
 import type { Rarity } from './types/card';
 import {
-  loadGame,
-  resetDataForRelease,
-  resetGame,
-  saveGame,
+  loadLegacyGame,
+  removeLegacyGame,
+  resetLocalGameData,
+  saveClickProgress,
 } from './utils/game-storage';
+import {
+  loadOrMigrateGame,
+  saveGameToFirestore,
+} from './utils/firestore-game-storage';
 import {
   BOOST_CLICKS,
   CONSUMABLES,
@@ -39,6 +43,7 @@ import { closeDialogOnBackdropClick } from './utils/dialog';
 import { useAccount } from './hooks/use-account';
 import { AccountAccess } from './components/account-access';
 import { ProfileDialog } from './components/profile-dialog';
+import type { SavedGame } from './types/save';
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS);
@@ -89,40 +94,61 @@ const INITIAL_VALUES = {
   },
 };
 
+type GameLoadState =
+  | { status: 'ready'; uid: string; attempt: number }
+  | { status: 'error'; uid: string; attempt: number; message: string };
+
+type GameProgress = Omit<SavedGame, 'version' | 'cardId'> & {
+  clickMessage: string;
+  shopMessage: string;
+  exchangeMessage: string;
+};
+
+function getGameStorageError(error: unknown) {
+  const code =
+    typeof error === 'object' &&
+    error !== null &&
+    'code' in error &&
+    typeof error.code === 'string'
+      ? error.code
+      : undefined;
+
+  if (code === 'permission-denied') {
+    return 'Firestore denied game-save access. Deploy the updated firestore.rules and try again.';
+  }
+
+  if (error instanceof Error) {
+    return error.message.replace(/^FirebaseError:\s*/, '');
+  }
+
+  return 'Could not access your saved game. Check your connection and try again.';
+}
+
 export default function App() {
   const accountSession = useAccount();
   const shopRef = useRef<HTMLDialogElement>(null);
   const resetProgressRef = useRef<HTMLDialogElement>(null);
-  const [dataResetSucceeded] = useState(resetDataForRelease);
-  const [storageError, setStorageError] = useState(!dataResetSucceeded);
-  const restoredGame = useMemo(
-    () => loadGame(CARDS.map((card) => card.id)),
-    [],
-  );
-  const [progress, setProgress] = useState({
-    currentCount: restoredGame?.currentCount ?? INITIAL_VALUES.currentCount,
-    sparks: restoredGame?.sparks ?? INITIAL_VALUES.sparks,
-    completedRounds:
-      restoredGame?.completedRounds ?? INITIAL_VALUES.completedRounds,
-    requiredClicks:
-      restoredGame?.requiredClicks ?? INITIAL_VALUES.requiredClicks,
-    levels: restoredGame?.levels ?? INITIAL_VALUES.levels,
-    cardRequirements:
-      restoredGame?.cardRequirements ?? INITIAL_VALUES.cardRequirements,
-    clickMessage: INITIAL_VALUES.clickMessage,
-    shopMessage: INITIAL_VALUES.shopMessage,
-    collection: restoredGame?.collection ?? INITIAL_VALUES.collection,
-    exchangeMessage: INITIAL_VALUES.exchangeMessage,
-    boosts: restoredGame?.boosts ?? INITIAL_VALUES.boosts,
-    consumablePurchases:
-      restoredGame?.consumablePurchases ?? INITIAL_VALUES.consumablePurchases,
-  });
+  const [progress, setProgress] = useState<GameProgress>(INITIAL_VALUES);
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
     progress;
-  const [card, setCard] = useState(
-    () =>
-      CARDS.find((card) => card.id === restoredGame?.cardId) ?? randomCard(),
+  const [card, setCard] = useState(randomCard);
+  const [gameLoadState, setGameLoadState] = useState<GameLoadState | null>(
+    null,
   );
+  const [gameLoadAttempt, setGameLoadAttempt] = useState(0);
+  const [saveRetryAttempt, setSaveRetryAttempt] = useState(0);
+  const [firestoreSaveError, setFirestoreSaveError] = useState('');
+  const [localStorageError, setLocalStorageError] = useState('');
+  const [legacyCleanupError, setLegacyCleanupError] = useState('');
+  const accountUid =
+    accountSession.account.status === 'ready'
+      ? accountSession.account.profile.uid
+      : null;
+  const gameIsLoaded =
+    accountUid !== null &&
+    gameLoadState?.status === 'ready' &&
+    gameLoadState.uid === accountUid &&
+    gameLoadState.attempt === gameLoadAttempt;
   const obtained = currentCount >= requiredClicks;
   const sparkBoost = progress.boosts.sparkClicks > 0;
   const focusBoost = progress.boosts.focusClicks > 0;
@@ -143,6 +169,86 @@ export default function App() {
     levels,
     collectionTotal,
   });
+
+  useEffect(() => {
+    if (!accountUid) {
+      return;
+    }
+
+    const uid = accountUid;
+    const attempt = gameLoadAttempt;
+    const controller = new AbortController();
+    const validCardIds = CARDS.map((card) => card.id);
+
+    async function restoreGame() {
+      try {
+        const legacyGame = loadLegacyGame(validCardIds);
+        const savedGame = await loadOrMigrateGame(
+          uid,
+          validCardIds,
+          legacyGame,
+        );
+        if (controller.signal.aborted) {
+          return;
+        }
+
+        const restoredProgress = savedGame
+          ? {
+              ...INITIAL_VALUES,
+              currentCount: savedGame.currentCount,
+              sparks: savedGame.sparks,
+              completedRounds: savedGame.completedRounds,
+              requiredClicks: savedGame.requiredClicks,
+              levels: savedGame.levels,
+              cardRequirements: savedGame.cardRequirements,
+              collection: savedGame.collection,
+              boosts: savedGame.boosts,
+              consumablePurchases: savedGame.consumablePurchases,
+            }
+          : INITIAL_VALUES;
+        const restoredCard = savedGame
+          ? CARDS.find((card) => card.id === savedGame.cardId)
+          : randomCard();
+        if (!restoredCard) {
+          throw new Error('The saved card could not be found.');
+        }
+
+        setCard(restoredCard);
+        setProgress(restoredProgress);
+        setFirestoreSaveError('');
+        previousAudioState.current = {
+          obtained:
+            restoredProgress.currentCount >= restoredProgress.requiredClicks,
+          completedRounds: restoredProgress.completedRounds,
+          levels: restoredProgress.levels,
+          collectionTotal: Object.values(restoredProgress.collection).reduce(
+            (sum, count) => sum + count,
+            0,
+          ),
+        };
+        setLegacyCleanupError(
+          removeLegacyGame()
+            ? ''
+            : 'Previous local game data could not be removed from this device.',
+        );
+        setGameLoadState({ status: 'ready', uid, attempt });
+      } catch (error) {
+        if (!controller.signal.aborted) {
+          setGameLoadState({
+            status: 'error',
+            uid,
+            attempt,
+            message: getGameStorageError(error),
+          });
+        }
+      }
+    }
+
+    void restoreGame();
+    return () => {
+      controller.abort();
+    };
+  }, [accountUid, gameLoadAttempt]);
 
   useEffect(() => {
     document.addEventListener('pointerdown', initializeSounds, true);
@@ -180,7 +286,22 @@ export default function App() {
   }, [obtained, completedRounds, levels, collectionTotal, card.rarity]);
 
   useEffect(() => {
-    const saved = saveGame({
+    if (!accountUid || !gameIsLoaded) {
+      return;
+    }
+
+    const localStorageMessage = saveClickProgress({
+      currentCount,
+      requiredClicks,
+    })
+      ? ''
+      : 'Current click progress could not be saved in local storage.';
+    const localStorageNotification = window.setTimeout(
+      () => setLocalStorageError(localStorageMessage),
+      0,
+    );
+
+    const savedGame: SavedGame = {
       version: 1,
       cardId: card.id,
       currentCount,
@@ -192,13 +313,29 @@ export default function App() {
       collection: progress.collection,
       boosts: progress.boosts,
       consumablePurchases: progress.consumablePurchases,
-    });
-    const notification = window.setTimeout(
-      () => setStorageError(!saved || !dataResetSucceeded),
-      0,
-    );
-    return () => window.clearTimeout(notification);
+    };
+    const controller = new AbortController();
+    const timeout = window.setTimeout(() => {
+      void saveGameToFirestore(accountUid, savedGame)
+        .then(() => {
+          if (!controller.signal.aborted) {
+            setFirestoreSaveError('');
+          }
+        })
+        .catch((error: unknown) => {
+          if (!controller.signal.aborted) {
+            setFirestoreSaveError(getGameStorageError(error));
+          }
+        });
+    }, 500);
+    return () => {
+      controller.abort();
+      window.clearTimeout(timeout);
+      window.clearTimeout(localStorageNotification);
+    };
   }, [
+    accountUid,
+    gameIsLoaded,
     card.id,
     currentCount,
     sparks,
@@ -209,7 +346,7 @@ export default function App() {
     progress.collection,
     progress.boosts,
     progress.consumablePurchases,
-    dataResetSucceeded,
+    saveRetryAttempt,
   ]);
 
   useEffect(() => {
@@ -466,7 +603,11 @@ export default function App() {
   }
 
   const onResetButtonClick = () => {
-    resetGame();
+    const cleared = resetLocalGameData();
+    setLocalStorageError(
+      cleared ? '' : 'Local game data could not be cleared from this device.',
+    );
+    setLegacyCleanupError('');
     setProgress(INITIAL_VALUES);
   };
 
@@ -503,20 +644,64 @@ export default function App() {
     );
   }
 
+  if (
+    gameLoadState?.status === 'error' &&
+    gameLoadState.uid === accountUid &&
+    gameLoadState.attempt === gameLoadAttempt
+  ) {
+    return (
+      <main className="flex min-h-svh items-center justify-center bg-page px-4 text-stone-100">
+        <section className="w-full max-w-sm space-y-4 rounded-2xl border border-white/10 bg-surface p-6">
+          <p role="alert" className="text-sm text-amber-200">
+            {gameLoadState.message}
+          </p>
+          <Button
+            variant="secondary"
+            className="w-full cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
+            onClick={() => setGameLoadAttempt((attempt) => attempt + 1)}
+          >
+            Try again
+          </Button>
+        </section>
+      </main>
+    );
+  }
+
+  if (!gameIsLoaded) {
+    return (
+      <main className="flex min-h-svh items-center justify-center bg-page px-4 text-stone-100">
+        <p role="status" className="text-sm text-stone-400">
+          Loading your saved game…
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="relative isolate flex min-h-svh flex-col items-center overflow-x-clip bg-page px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-stone-100 sm:px-8">
       <div
         aria-hidden="true"
         className="pointer-events-none absolute inset-0 -z-10 bg-[radial-gradient(ellipse_at_center,var(--glow)_0%,transparent_65%)]"
       />
-      {storageError && (
-        <p
-          role="status"
-          className="fixed bottom-3 z-20 rounded-lg bg-surface px-4 py-2 text-xs text-amber-200"
+      {(localStorageError || legacyCleanupError || firestoreSaveError) && (
+        <div
+          role="alert"
+          className="fixed bottom-3 z-20 flex max-w-[calc(100%-1.5rem)] items-center gap-3 rounded-lg bg-surface px-4 py-2 text-xs text-amber-200"
         >
-          Browser storage is unavailable. Progress and preferences may not
-          survive a reload.
-        </p>
+          <p>
+            {[localStorageError, legacyCleanupError, firestoreSaveError]
+              .filter(Boolean)
+              .join(' ')}
+          </p>
+          {firestoreSaveError && (
+            <Button
+              size="sm"
+              onClick={() => setSaveRetryAttempt((attempt) => attempt + 1)}
+            >
+              Retry
+            </Button>
+          )}
+        </div>
       )}
       <header className="flex w-full max-w-7xl flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
         <div className="flex items-center justify-between gap-4">

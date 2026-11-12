@@ -10,6 +10,128 @@ service cloud.firestore {
       return nickname is string && nickname.matches('^[A-Za-z0-9]{3,15}$');
     }
 
+    function validRarity(rarity) {
+      return rarity == null || rarity in ['White', 'Green', 'Blue', 'Purple', 'Gold'];
+    }
+
+    function validGameSave(data) {
+      return data.keys().hasOnly([
+          'version',
+          'cardId',
+          'currentCount',
+          'sparks',
+          'completedRounds',
+          'requiredClicks',
+          'levels',
+          'cardRequirements',
+          'collection',
+          'boosts',
+          'consumablePurchases'
+        ])
+        && data.keys().hasAll([
+          'version',
+          'cardId',
+          'currentCount',
+          'sparks',
+          'completedRounds',
+          'requiredClicks',
+          'levels',
+          'cardRequirements',
+          'collection',
+          'boosts',
+          'consumablePurchases'
+        ])
+        && data.version == 1
+        && data.cardId is string
+        && data.currentCount is int
+        && data.currentCount >= 0
+        && data.sparks is int
+        && data.sparks >= 0
+        && data.completedRounds is int
+        && data.completedRounds >= 0
+        && data.requiredClicks is int
+        && data.requiredClicks > 0
+        && data.currentCount <= data.requiredClicks
+        && data.levels is map
+        && data.levels.keys().hasOnly([
+          'power',
+          'progress',
+          'mastery',
+          'fortune',
+          'critical',
+          'auto'
+        ])
+        && data.levels.keys().hasAll([
+          'power',
+          'progress',
+          'mastery',
+          'fortune',
+          'critical',
+          'auto'
+        ])
+        && data.levels.power is int
+        && data.levels.power >= 0
+        && data.levels.progress is int
+        && data.levels.progress >= 0
+        && data.levels.mastery is int
+        && data.levels.mastery >= 0
+        && data.levels.fortune is int
+        && data.levels.fortune >= 0
+        && data.levels.critical is int
+        && data.levels.critical >= 0
+        && data.levels.auto is int
+        && data.levels.auto >= 0
+        && data.cardRequirements is map
+        && data.cardRequirements.keys().hasOnly([
+          'power',
+          'progress',
+          'mastery',
+          'fortune',
+          'critical',
+          'auto'
+        ])
+        && data.cardRequirements.keys().hasAll([
+          'power',
+          'progress',
+          'mastery',
+          'fortune',
+          'critical',
+          'auto'
+        ])
+        && validRarity(data.cardRequirements.power)
+        && validRarity(data.cardRequirements.progress)
+        && validRarity(data.cardRequirements.mastery)
+        && validRarity(data.cardRequirements.fortune)
+        && validRarity(data.cardRequirements.critical)
+        && validRarity(data.cardRequirements.auto)
+        && data.collection is map
+        && data.collection.keys().size() <= 60
+        && data.boosts is map
+        && data.boosts.keys().hasOnly(['sparkClicks', 'focusClicks'])
+        && data.boosts.keys().hasAll(['sparkClicks', 'focusClicks'])
+        && data.boosts.sparkClicks is int
+        && data.boosts.sparkClicks >= 0
+        && data.boosts.focusClicks is int
+        && data.boosts.focusClicks >= 0
+        && data.consumablePurchases is map
+        && data.consumablePurchases.keys().hasOnly([
+          'spark-tonic',
+          'focus-tonic',
+          'reveal-dust'
+        ])
+        && data.consumablePurchases.keys().hasAll([
+          'spark-tonic',
+          'focus-tonic',
+          'reveal-dust'
+        ])
+        && data.consumablePurchases['spark-tonic'] is int
+        && data.consumablePurchases['spark-tonic'] >= 0
+        && data.consumablePurchases['focus-tonic'] is int
+        && data.consumablePurchases['focus-tonic'] >= 0
+        && data.consumablePurchases['reveal-dust'] is int
+        && data.consumablePurchases['reveal-dust'] >= 0;
+    }
+
     match /users/{userId} {
       allow get: if signedIn() && request.auth.uid == userId;
       allow list: if false;
@@ -49,6 +171,15 @@ service cloud.firestore {
           /databases/$(database)/documents/users/$(request.auth.uid)
         ).data.nickname.lower() != nickname;
       allow update: if false;
+    }
+
+    match /gameSaves/{userId} {
+      allow get: if signedIn() && request.auth.uid == userId;
+      allow list: if false;
+      allow create, update: if signedIn()
+        && request.auth.uid == userId
+        && validGameSave(request.resource.data);
+      allow delete: if false;
     }
 
     match /{document=**} {
