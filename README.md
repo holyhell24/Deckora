@@ -1,5 +1,7 @@
 # Deckora
 
+Fully vibe-coded project
+
 Deckora is a collectible card discovery game. Build progress, uncover cards, and
 grow your collection one discovery at a time.
 
