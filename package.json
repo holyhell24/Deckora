@@ -12,6 +12,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@firebase/app": "^0.16.6",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "howler": "^2.2.4",

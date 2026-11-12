@@ -11,6 +11,12 @@ npm run dev
 
 `npm run build` checks TypeScript and builds for production. `npm run lint` runs Oxlint. `npm run preview` serves the production build locally.
 
+Firebase is initialized from the project configuration in `src/firebase.ts`.
+The app currently initializes Firebase only; add and initialize Firebase
+products such as Authentication or Firestore when needed. Firebase web
+configuration values are public client identifiers, so secure Firebase data
+with appropriate Firebase Security Rules.
+
 ## Structure
 
 ```text
