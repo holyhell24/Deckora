@@ -247,7 +247,7 @@ export function SpectralGifts({
           </Button>
         </div>
 
-        <div className="space-y-8 px-4 py-6 sm:px-6">
+        <div className="space-y-8 px-4 py-6 pb-[max(1.5rem,env(safe-area-inset-bottom))] sm:px-6">
           <form className="space-y-4" onSubmit={handleSend}>
             <h3 className="font-medium text-amber-100">Send a card</h3>
             <div className="space-y-2">

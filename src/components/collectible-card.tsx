@@ -79,7 +79,7 @@ export function CollectibleCard({
 
   return (
     <div
-      className="-m-3 box-content w-[min(60vw,38svh,14rem)] p-3 sm:-m-10 sm:p-10 [perspective:900px] sm:w-64"
+      className="-m-3 box-content w-[min(70vw,42svh,16rem)] p-3 [perspective:900px] sm:-m-10 sm:p-10 sm:w-[min(16rem,42svh)]"
       onPointerMove={updateTilt}
       onPointerLeave={resetTilt}
       onPointerCancel={resetTilt}

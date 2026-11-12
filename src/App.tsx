@@ -785,9 +785,9 @@ export default function App() {
       {(localStorageError || legacyCleanupError || firestoreSaveError) && (
         <div
           role="alert"
-          className="fixed bottom-3 z-20 flex max-w-[calc(100%-1.5rem)] items-center gap-3 rounded-lg bg-surface px-4 py-2 text-xs text-amber-200"
+          className="fixed bottom-[max(0.75rem,env(safe-area-inset-bottom))] z-20 flex max-w-[calc(100%-1.5rem)] flex-wrap items-start gap-3 rounded-lg bg-surface px-4 py-2 text-xs text-amber-200"
         >
-          <p>
+          <p className="min-w-0 flex-1 break-words">
             {[localStorageError, legacyCleanupError, firestoreSaveError]
               .filter(Boolean)
               .join(' ')}
@@ -795,6 +795,7 @@ export default function App() {
           {firestoreSaveError && (
             <Button
               size="sm"
+              className="shrink-0"
               onClick={() => setSaveRetryAttempt((attempt) => attempt + 1)}
             >
               Retry
@@ -803,27 +804,31 @@ export default function App() {
         </div>
       )}
       <header className="flex w-full max-w-7xl flex-col gap-4 border-b border-white/10 pb-4 sm:flex-row sm:flex-wrap sm:items-center sm:justify-between">
-        <div className="flex items-center justify-between gap-4">
-          <span className="text-sm font-semibold tracking-[0.3em]">
-            DECKORA
-          </span>
-          <span className="text-xs text-stone-400">
-            {accountSession.account.profile.nickname}
-          </span>
-          <ProfileDialog
-            email={accountSession.account.profile.email}
-            nickname={accountSession.account.profile.nickname}
-            saving={accountSession.saving}
-            error={accountSession.actionError}
-            onSave={accountSession.changeNickname}
-            onSignOut={() => {
-              void accountSession.signOutAccount();
-            }}
-          />
-          <SoundToggle />
-          <ResetProgress
-            onResetButtonClick={() => resetProgressRef.current?.showModal()}
-          />
+        <div className="flex w-full flex-wrap items-center gap-3 sm:w-auto sm:gap-4">
+          <div className="flex w-full min-w-0 items-center justify-between gap-3 sm:w-auto sm:justify-start">
+            <span className="text-sm font-semibold tracking-[0.3em]">
+              DECKORA
+            </span>
+            <span className="max-w-[55vw] truncate text-xs text-stone-400 sm:max-w-none">
+              {accountSession.account.profile.nickname}
+            </span>
+          </div>
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:flex-nowrap sm:justify-start sm:gap-3">
+            <ProfileDialog
+              email={accountSession.account.profile.email}
+              nickname={accountSession.account.profile.nickname}
+              saving={accountSession.saving}
+              error={accountSession.actionError}
+              onSave={accountSession.changeNickname}
+              onSignOut={() => {
+                void accountSession.signOutAccount();
+              }}
+            />
+            <SoundToggle />
+            <ResetProgress
+              onResetButtonClick={() => resetProgressRef.current?.showModal()}
+            />
+          </div>
 
           <dialog
             ref={resetProgressRef}
@@ -871,7 +876,7 @@ export default function App() {
           </dialog>
         </div>
         <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
-          <div className="flex items-center justify-center gap-2 sm:gap-3">
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:flex-nowrap sm:gap-3">
             <ThemeSelector />
             <SpectralGifts
               uid={accountSession.account.profile.uid}
@@ -886,7 +891,7 @@ export default function App() {
               exchangeMessage={progress.exchangeMessage}
             />
           </div>
-          <div className="flex items-center justify-center gap-2 sm:gap-3">
+          <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto sm:flex-nowrap sm:justify-end sm:gap-3">
             <span className="rounded-full border border-amber-200/20 bg-amber-200/5 px-4 py-2 text-sm text-amber-200">
               <span className="font-semibold tabular-nums">
                 {sparks.toLocaleString()}
@@ -906,7 +911,7 @@ export default function App() {
         </div>
       </header>
 
-      <div className="flex w-full max-w-5xl flex-1 flex-col items-center justify-center py-8 sm:py-12">
+      <div className="flex w-full max-w-5xl flex-1 flex-col items-center justify-start py-5 sm:justify-center sm:py-12">
         <section
           aria-label="Card clicker"
           className="flex shrink-0 flex-col items-center"
