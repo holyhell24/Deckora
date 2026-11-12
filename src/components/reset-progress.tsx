@@ -1,9 +1,9 @@
-import { Button } from './ui/button'
+import { Button } from './ui/button';
 
 export function ResetProgress({
   onResetButtonClick,
 }: {
-  onResetButtonClick: () => void
+  onResetButtonClick: () => void;
 }) {
   return (
     <Button
@@ -14,5 +14,5 @@ export function ResetProgress({
     >
       Reset Progress
     </Button>
-  )
+  );
 }

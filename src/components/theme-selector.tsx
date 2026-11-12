@@ -1,24 +1,24 @@
-import { useEffect, useState } from 'react'
-import { THEMES, THEME_STORAGE_KEY, type ThemeId } from '../constants/themes'
+import { useEffect, useState } from 'react';
+import { THEMES, THEME_STORAGE_KEY, type ThemeId } from '../constants/themes';
 
 export function ThemeSelector() {
   const [theme, setTheme] = useState<ThemeId>(() => {
     try {
-      const saved = localStorage.getItem(THEME_STORAGE_KEY)
-      return THEMES.find((item) => item.id === saved)?.id ?? 'midnight'
+      const saved = localStorage.getItem(THEME_STORAGE_KEY);
+      return THEMES.find((item) => item.id === saved)?.id ?? 'midnight';
     } catch {
-      return 'midnight'
+      return 'midnight';
     }
-  })
+  });
 
   useEffect(() => {
-    document.documentElement.dataset.theme = theme
+    document.documentElement.dataset.theme = theme;
     try {
-      localStorage.setItem(THEME_STORAGE_KEY, theme)
+      localStorage.setItem(THEME_STORAGE_KEY, theme);
     } catch {
       // The theme still works when browser storage is unavailable.
     }
-  }, [theme])
+  }, [theme]);
 
   return (
     <label className="flex items-center gap-2 text-xs text-stone-400">
@@ -35,5 +35,5 @@ export function ThemeSelector() {
         ))}
       </select>
     </label>
-  )
+  );
 }

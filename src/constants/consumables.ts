@@ -1,7 +1,7 @@
-export const BOOST_CLICKS = 100
-export const CONSUMABLE_PRICE_GROWTH = 1.5
+export const BOOST_CLICKS = 100;
+export const CONSUMABLE_PRICE_GROWTH = 1.5;
 export const getConsumableCost = (baseCost: number, purchases: number) =>
-  Math.ceil(baseCost * CONSUMABLE_PRICE_GROWTH ** purchases)
+  Math.ceil(baseCost * CONSUMABLE_PRICE_GROWTH ** purchases);
 export const CONSUMABLES = [
   {
     id: 'spark-tonic',
@@ -24,4 +24,4 @@ export const CONSUMABLES = [
     description:
       'Instantly adds 25% of the current card target as progress. Cannot be used on a revealed card.',
   },
-] as const
+] as const;

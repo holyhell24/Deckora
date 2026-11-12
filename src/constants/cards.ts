@@ -1,54 +1,54 @@
-import type { Card } from '../types/card'
-import card0 from '../assets/cards/white/001-moonstone.svg'
-import card1 from '../assets/cards/white/002-silent-leaf.svg'
-import card2 from '../assets/cards/white/003-ivory-compass.svg'
-import card3 from '../assets/cards/white/004-winter-lantern.svg'
-import card4 from '../assets/cards/white/005-silver-echo.svg'
-import card5 from '../assets/cards/green/006-verdant-heart.svg'
-import card6 from '../assets/cards/white/007-mossbound-rune.svg'
-import card7 from '../assets/cards/green/008-emerald-bloom.svg'
-import card8 from '../assets/cards/green/009-wildwood-sentinel.svg'
-import card9 from '../assets/cards/white/010-fern-whisper.svg'
-import card10 from '../assets/cards/blue/011-tidal-crest.svg'
-import card11 from '../assets/cards/blue/012-frostglass.svg'
-import card12 from '../assets/cards/blue/013-azure-beacon.svg'
-import card13 from '../assets/cards/blue/014-stormcaller.svg'
-import card14 from '../assets/cards/blue/015-deepwater-pearl.svg'
-import card15 from '../assets/cards/purple/016-twilight-oracle.svg'
-import card16 from '../assets/cards/green/017-amethyst-veil.svg'
-import card17 from '../assets/cards/green/018-void-blossom.svg'
-import card18 from '../assets/cards/purple/019-astral-key.svg'
-import card19 from '../assets/cards/purple/020-dreamweaver.svg'
-import card20 from '../assets/cards/gold/021-solar-crown.svg'
-import card21 from '../assets/cards/gold/022-phoenix-ember.svg'
-import card22 from '../assets/cards/purple/023-eternal-hourglass.svg'
-import card23 from '../assets/cards/gold/024-celestial-throne.svg'
-import card24 from '../assets/cards/gold/025-dawnbringer.svg'
-import card25 from '../assets/cards/white/026-snowbound-bell.svg'
-import card26 from '../assets/cards/white/027-wanderer-boot.svg'
-import card27 from '../assets/cards/white/028-porcelain-teapot.svg'
-import card28 from '../assets/cards/white/029-stone-bridge.svg'
-import card29 from '../assets/cards/white/030-paper-crane.svg'
-import card30 from '../assets/cards/white/031-acorn-keeper.svg'
-import card31 from '../assets/cards/green/032-emerald-stag.svg'
-import card32 from '../assets/cards/green/033-clover-pact.svg'
-import card33 from '../assets/cards/white/034-forest-mushroom.svg'
-import card34 from '../assets/cards/green/035-willow-harp.svg'
-import card35 from '../assets/cards/white/036-mariner-anchor.svg'
-import card36 from '../assets/cards/blue/037-crystal-trident.svg'
-import card37 from '../assets/cards/white/038-rain-chalice.svg'
-import card38 from '../assets/cards/blue/039-glacial-peak.svg'
-import card39 from '../assets/cards/blue/040-sapphire-turtle.svg'
-import card40 from '../assets/cards/green/041-lunar-moth.svg'
-import card41 from '../assets/cards/green/042-witch-cauldron.svg'
-import card42 from '../assets/cards/green/043-arcane-tome.svg'
-import card43 from '../assets/cards/purple/044-eclipse-mirror.svg'
-import card44 from '../assets/cards/blue/045-astral-fox.svg'
-import card45 from '../assets/cards/purple/046-dragon-sigil.svg'
-import card46 from '../assets/cards/green/047-royal-scepter.svg'
-import card47 from '../assets/cards/blue/048-golden-lion.svg'
-import card48 from '../assets/cards/purple/049-infinity-seal.svg'
-import card49 from '../assets/cards/green/050-sacred-scales.svg'
+import type { Card } from '../types/card';
+import card0 from '../assets/cards/white/001-moonstone.svg';
+import card1 from '../assets/cards/white/002-silent-leaf.svg';
+import card2 from '../assets/cards/white/003-ivory-compass.svg';
+import card3 from '../assets/cards/white/004-winter-lantern.svg';
+import card4 from '../assets/cards/white/005-silver-echo.svg';
+import card5 from '../assets/cards/green/006-verdant-heart.svg';
+import card6 from '../assets/cards/white/007-mossbound-rune.svg';
+import card7 from '../assets/cards/green/008-emerald-bloom.svg';
+import card8 from '../assets/cards/green/009-wildwood-sentinel.svg';
+import card9 from '../assets/cards/white/010-fern-whisper.svg';
+import card10 from '../assets/cards/blue/011-tidal-crest.svg';
+import card11 from '../assets/cards/blue/012-frostglass.svg';
+import card12 from '../assets/cards/blue/013-azure-beacon.svg';
+import card13 from '../assets/cards/blue/014-stormcaller.svg';
+import card14 from '../assets/cards/blue/015-deepwater-pearl.svg';
+import card15 from '../assets/cards/purple/016-twilight-oracle.svg';
+import card16 from '../assets/cards/green/017-amethyst-veil.svg';
+import card17 from '../assets/cards/green/018-void-blossom.svg';
+import card18 from '../assets/cards/purple/019-astral-key.svg';
+import card19 from '../assets/cards/purple/020-dreamweaver.svg';
+import card20 from '../assets/cards/gold/021-solar-crown.svg';
+import card21 from '../assets/cards/gold/022-phoenix-ember.svg';
+import card22 from '../assets/cards/purple/023-eternal-hourglass.svg';
+import card23 from '../assets/cards/gold/024-celestial-throne.svg';
+import card24 from '../assets/cards/gold/025-dawnbringer.svg';
+import card25 from '../assets/cards/white/026-snowbound-bell.svg';
+import card26 from '../assets/cards/white/027-wanderer-boot.svg';
+import card27 from '../assets/cards/white/028-porcelain-teapot.svg';
+import card28 from '../assets/cards/white/029-stone-bridge.svg';
+import card29 from '../assets/cards/white/030-paper-crane.svg';
+import card30 from '../assets/cards/white/031-acorn-keeper.svg';
+import card31 from '../assets/cards/green/032-emerald-stag.svg';
+import card32 from '../assets/cards/green/033-clover-pact.svg';
+import card33 from '../assets/cards/white/034-forest-mushroom.svg';
+import card34 from '../assets/cards/green/035-willow-harp.svg';
+import card35 from '../assets/cards/white/036-mariner-anchor.svg';
+import card36 from '../assets/cards/blue/037-crystal-trident.svg';
+import card37 from '../assets/cards/white/038-rain-chalice.svg';
+import card38 from '../assets/cards/blue/039-glacial-peak.svg';
+import card39 from '../assets/cards/blue/040-sapphire-turtle.svg';
+import card40 from '../assets/cards/green/041-lunar-moth.svg';
+import card41 from '../assets/cards/green/042-witch-cauldron.svg';
+import card42 from '../assets/cards/green/043-arcane-tome.svg';
+import card43 from '../assets/cards/purple/044-eclipse-mirror.svg';
+import card44 from '../assets/cards/blue/045-astral-fox.svg';
+import card45 from '../assets/cards/purple/046-dragon-sigil.svg';
+import card46 from '../assets/cards/green/047-royal-scepter.svg';
+import card47 from '../assets/cards/blue/048-golden-lion.svg';
+import card48 from '../assets/cards/purple/049-infinity-seal.svg';
+import card49 from '../assets/cards/green/050-sacred-scales.svg';
 
 export const CARDS: readonly Card[] = [
   { id: '001', name: 'Moonstone', rarity: 'White', image: card0 },
@@ -101,4 +101,4 @@ export const CARDS: readonly Card[] = [
   { id: '048', name: 'Golden Lion', rarity: 'Blue', image: card47 },
   { id: '049', name: 'Infinity Seal', rarity: 'Purple', image: card48 },
   { id: '050', name: 'Sacred Scales', rarity: 'Green', image: card49 },
-]
+];

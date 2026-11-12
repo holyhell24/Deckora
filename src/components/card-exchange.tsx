@@ -1,14 +1,14 @@
-﻿import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
-import type { Rarity } from '../types/card'
-import type { CollectionCounts } from '../types/collection'
-import { Button } from './ui/button'
+﻿import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange';
+import type { Rarity } from '../types/card';
+import type { CollectionCounts } from '../types/collection';
+import { Button } from './ui/button';
 
 type CardExchangeProps = {
-  rarity: Rarity
-  payment: CollectionCounts
-  onExchange: (rarity: Rarity, payment: CollectionCounts) => void
-  onClear: () => void
-}
+  rarity: Rarity;
+  payment: CollectionCounts;
+  onExchange: (rarity: Rarity, payment: CollectionCounts) => void;
+  onClear: () => void;
+};
 
 export function CardExchange({
   rarity,
@@ -16,17 +16,19 @@ export function CardExchange({
   onExchange,
   onClear,
 }: CardExchangeProps) {
-  const nextRarity = NEXT_RARITY[rarity]
+  const nextRarity = NEXT_RARITY[rarity];
   const selectedCount = Object.values(payment).reduce(
     (sum, count) => sum + count,
     0,
-  )
-  if (!nextRarity)
+  );
+  if (!nextRarity) {
     return (
       <p className="mb-6 text-sm text-amber-200/70">
         Gold is the highest tier. No further exchange is available.
       </p>
-    )
+    );
+  }
+
   return (
     <section
       aria-label="Card exchange"
@@ -45,8 +47,8 @@ export function CardExchange({
           className="cursor-pointer border border-amber-200/20 bg-amber-200/10 text-amber-100 hover:bg-amber-200/20"
           disabled={selectedCount !== EXCHANGE_CARD_COUNT}
           onClick={() => {
-            onExchange(rarity, payment)
-            onClear()
+            onExchange(rarity, payment);
+            onClear();
           }}
         >
           Exchange {selectedCount}/{EXCHANGE_CARD_COUNT} cards
@@ -60,5 +62,5 @@ export function CardExchange({
         </Button>
       </div>
     </section>
-  )
+  );
 }

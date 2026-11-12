@@ -1,7 +1,7 @@
-import { cva, type VariantProps } from 'class-variance-authority'
-import { clsx } from 'clsx'
-import type { ComponentProps } from 'react'
-import { twMerge } from 'tailwind-merge'
+import { cva, type VariantProps } from 'class-variance-authority';
+import { clsx } from 'clsx';
+import type { ComponentProps } from 'react';
+import { twMerge } from 'tailwind-merge';
 
 const buttonVariants = cva(
   'touch-manipulation inline-flex items-center justify-center rounded-lg font-medium transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-slate-600 disabled:pointer-events-none disabled:opacity-50',
@@ -20,10 +20,10 @@ const buttonVariants = cva(
     },
     defaultVariants: { variant: 'primary', size: 'md' },
   },
-)
+);
 
 type ButtonProps = ComponentProps<'button'> &
-  VariantProps<typeof buttonVariants>
+  VariantProps<typeof buttonVariants>;
 
 export function Button({
   className,
@@ -38,5 +38,5 @@ export function Button({
       className={twMerge(clsx(buttonVariants({ variant, size }), className))}
       {...props}
     />
-  )
+  );
 }

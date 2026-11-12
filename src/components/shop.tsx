@@ -1,30 +1,30 @@
-import { CURRENCY_NAME } from '../constants/clicker'
-import { getUpgradeCost, getUpgradeEffect, UPGRADES } from '../constants/shop'
-import { useState } from 'react'
-import { CARDS } from '../constants/cards'
-import type { CollectionCounts } from '../types/collection'
-import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
-import type { Rarity } from '../types/card'
-import { Button } from './ui/button'
-import { Consumables } from './consumables'
+import { CURRENCY_NAME } from '../constants/clicker';
+import { getUpgradeCost, getUpgradeEffect, UPGRADES } from '../constants/shop';
+import { useState } from 'react';
+import { CARDS } from '../constants/cards';
+import type { CollectionCounts } from '../types/collection';
+import type { UpgradeId, UpgradeLevels } from '../types/upgrade';
+import type { Rarity } from '../types/card';
+import { Button } from './ui/button';
+import { Consumables } from './consumables';
 import type {
   ActiveBoosts,
   ConsumableId,
   ConsumablePurchases,
-} from '../types/consumable'
+} from '../types/consumable';
 
 type ShopProps = {
-  balance: number
-  levels: UpgradeLevels
-  cardRequirements: Record<UpgradeId, Rarity | null>
-  onBuy: (id: UpgradeId, cardId?: string) => void
-  collection: CollectionCounts
-  message: string
-  boosts: ActiveBoosts
-  consumablePurchases: ConsumablePurchases
-  revealed: boolean
-  onBuyConsumable: (id: ConsumableId) => void
-}
+  balance: number;
+  levels: UpgradeLevels;
+  cardRequirements: Record<UpgradeId, Rarity | null>;
+  onBuy: (id: UpgradeId, cardId?: string) => void;
+  collection: CollectionCounts;
+  message: string;
+  boosts: ActiveBoosts;
+  consumablePurchases: ConsumablePurchases;
+  revealed: boolean;
+  onBuyConsumable: (id: ConsumableId) => void;
+};
 
 export function Shop({
   balance,
@@ -38,10 +38,12 @@ export function Shop({
   revealed,
   onBuyConsumable,
 }: ShopProps) {
-  const [section, setSection] = useState<'upgrades' | 'consumables'>('upgrades')
+  const [section, setSection] = useState<'upgrades' | 'consumables'>(
+    'upgrades',
+  );
   const [selectedCards, setSelectedCards] = useState<
     Partial<Record<UpgradeId, string>>
-  >({})
+  >({});
   return (
     <aside
       aria-labelledby="shop-heading"
@@ -79,21 +81,21 @@ export function Shop({
       )}
       <div hidden={section !== 'upgrades'} className="mt-6 space-y-4">
         {UPGRADES.map((upgrade) => {
-          const level = levels[upgrade.id]
-          const cost = getUpgradeCost(upgrade.baseCost, level)
-          const affordable = balance >= cost
+          const level = levels[upgrade.id];
+          const cost = getUpgradeCost(upgrade.baseCost, level);
+          const affordable = balance >= cost;
           const maxed =
             (upgrade.id === 'critical' && level >= 10) ||
-            (upgrade.id === 'mastery' && level >= 10)
-          const rarity = cardRequirements[upgrade.id]
+            (upgrade.id === 'mastery' && level >= 10);
+          const rarity = cardRequirements[upgrade.id];
           const availableCards = CARDS.filter(
             (card) => card.rarity === rarity && collection[card.id] > 0,
-          ).sort((a, b) => collection[b.id] - collection[a.id])
+          ).sort((a, b) => collection[b.id] - collection[a.id]);
           const selectedCard =
             availableCards.find(
               (card) => card.id === selectedCards[upgrade.id],
-            ) ?? availableCards[0]
-          const hasCard = rarity === null || selectedCard !== undefined
+            ) ?? availableCards[0];
+          const hasCard = rarity === null || selectedCard !== undefined;
           return (
             <div
               key={upgrade.id}
@@ -175,12 +177,12 @@ export function Shop({
                   : '\u00a0'}
               </p>
             </div>
-          )
+          );
         })}
       </div>
       <p role="status" className="mt-4 min-h-8 text-xs text-amber-200/80">
         {message}
       </p>
     </aside>
-  )
+  );
 }

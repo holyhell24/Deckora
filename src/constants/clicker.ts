@@ -1,6 +1,6 @@
-export const INITIAL_CLICK_TARGET = 10
-export const CLICK_TARGET_GROWTH = 1.1
-export const CURRENCY_NAME = 'Sparks'
+export const INITIAL_CLICK_TARGET = 10;
+export const CLICK_TARGET_GROWTH = 1.1;
+export const CURRENCY_NAME = 'Sparks';
 
 export const getClickTarget = (openedCards: number, masteryLevel = 0) =>
   Math.max(
@@ -10,4 +10,4 @@ export const getClickTarget = (openedCards: number, masteryLevel = 0) =>
         CLICK_TARGET_GROWTH ** openedCards *
         0.9 ** masteryLevel,
     ),
-  )
+  );

@@ -1,13 +1,13 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react';
 
-import { CollectibleCard } from '../components/collectible-card'
-import { ThemeSelector } from '../components/theme-selector'
-import { SoundToggle } from '../components/sound-toggle'
-import { initializeSounds, playSound } from '../utils/sounds'
-import { Collection } from '../components/collection'
-import type { CollectionCounts } from '../types/collection'
-import { Button } from '../components/ui/button'
-import { Shop } from '../components/shop'
+import { CollectibleCard } from '../components/collectible-card';
+import { ThemeSelector } from '../components/theme-selector';
+import { SoundToggle } from '../components/sound-toggle';
+import { initializeSounds, playSound } from '../utils/sounds';
+import { Collection } from '../components/collection';
+import type { CollectionCounts } from '../types/collection';
+import { Button } from '../components/ui/button';
+import { Shop } from '../components/shop';
 import {
   AUTO_REWARD_PER_LEVEL,
   getCriticalChance,
@@ -15,37 +15,37 @@ import {
   getUpgradeCost,
   PROGRESS_REWARD_PER_LEVEL,
   UPGRADES,
-} from '../constants/shop'
-import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
-import { CARDS } from '../constants/cards'
-import { CURRENCY_NAME, getClickTarget } from '../constants/clicker'
-import { RARITY_WEIGHTS } from '../constants/rarities'
-import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
-import type { Rarity } from '../types/card'
-import { loadGame, resetGame, saveGame } from '../utils/game-storage'
+} from '../constants/shop';
+import type { UpgradeId, UpgradeLevels } from '../types/upgrade';
+import { CARDS } from '../constants/cards';
+import { CURRENCY_NAME, getClickTarget } from '../constants/clicker';
+import { RARITY_WEIGHTS } from '../constants/rarities';
+import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange';
+import type { Rarity } from '../types/card';
+import { loadGame, resetGame, saveGame } from '../utils/game-storage';
 import {
   BOOST_CLICKS,
   CONSUMABLES,
   getConsumableCost,
-} from '../constants/consumables'
-import type { ConsumableId } from '../types/consumable'
-import { ResetProgress } from '../components/reset-progress'
+} from '../constants/consumables';
+import type { ConsumableId } from '../types/consumable';
+import { ResetProgress } from '../components/reset-progress';
 
 const randomCard = () => {
-  const rarities = Object.entries(RARITY_WEIGHTS)
-  const totalWeight = rarities.reduce((total, [, weight]) => total + weight, 0)
-  let roll = Math.random() * totalWeight
+  const rarities = Object.entries(RARITY_WEIGHTS);
+  const totalWeight = rarities.reduce((total, [, weight]) => total + weight, 0);
+  let roll = Math.random() * totalWeight;
 
   for (const [rarity, weight] of rarities) {
-    roll -= weight
+    roll -= weight;
     if (roll < 0) {
-      const cards = CARDS.filter((card) => card.rarity === rarity)
-      return cards[Math.floor(Math.random() * cards.length)]
+      const cards = CARDS.filter((card) => card.rarity === rarity);
+      return cards[Math.floor(Math.random() * cards.length)];
     }
   }
 
-  throw new Error('Could not pick a card: check rarity weights.')
-}
+  throw new Error('Could not pick a card: check rarity weights.');
+};
 
 const INITIAL_VALUES = {
   currentCount: 0,
@@ -78,13 +78,16 @@ const INITIAL_VALUES = {
     'focus-tonic': 0,
     'reveal-dust': 0,
   },
-}
+};
 
 export function HomePage() {
-  const shopRef = useRef<HTMLDialogElement>(null)
-  const resetProgressRef = useRef<HTMLDialogElement>(null)
-  const [storageError, setStorageError] = useState(false)
-  const restoredGame = useMemo(() => loadGame(CARDS.map((card) => card.id)), [])
+  const shopRef = useRef<HTMLDialogElement>(null);
+  const resetProgressRef = useRef<HTMLDialogElement>(null);
+  const [storageError, setStorageError] = useState(false);
+  const restoredGame = useMemo(
+    () => loadGame(CARDS.map((card) => card.id)),
+    [],
+  );
   const [progress, setProgress] = useState({
     currentCount: restoredGame?.currentCount ?? INITIAL_VALUES.currentCount,
     sparks: restoredGame?.sparks ?? INITIAL_VALUES.sparks,
@@ -102,65 +105,68 @@ export function HomePage() {
     boosts: restoredGame?.boosts ?? INITIAL_VALUES.boosts,
     consumablePurchases:
       restoredGame?.consumablePurchases ?? INITIAL_VALUES.consumablePurchases,
-  })
+  });
   const { currentCount, sparks, completedRounds, requiredClicks, levels } =
-    progress
+    progress;
   const [card, setCard] = useState(
     () =>
       CARDS.find((card) => card.id === restoredGame?.cardId) ?? randomCard(),
-  )
-  const obtained = currentCount >= requiredClicks
-  const sparkBoost = progress.boosts.sparkClicks > 0
-  const focusBoost = progress.boosts.focusClicks > 0
+  );
+  const obtained = currentCount >= requiredClicks;
+  const sparkBoost = progress.boosts.sparkClicks > 0;
+  const focusBoost = progress.boosts.focusClicks > 0;
   const progressPerClick =
     (levels.power + 1 + levels.progress * PROGRESS_REWARD_PER_LEVEL) *
-    (focusBoost ? 2 : 1)
-  const familiarRewardPerSecond = levels.auto * AUTO_REWARD_PER_LEVEL
+    (focusBoost ? 2 : 1);
+  const familiarRewardPerSecond = levels.auto * AUTO_REWARD_PER_LEVEL;
   const sparksPerClick =
-    (levels.power + 1 + levels.fortune * 2) * (sparkBoost ? 2 : 1)
-  const nextTarget = getClickTarget(completedRounds + 1, levels.mastery)
+    (levels.power + 1 + levels.fortune * 2) * (sparkBoost ? 2 : 1);
+  const nextTarget = getClickTarget(completedRounds + 1, levels.mastery);
   const collectionTotal = Object.values(progress.collection).reduce(
     (sum, count) => sum + count,
     0,
-  )
+  );
   const previousAudioState = useRef({
     obtained,
     completedRounds,
     levels,
     collectionTotal,
-  })
+  });
 
   useEffect(() => {
-    document.addEventListener('pointerdown', initializeSounds, true)
-    document.addEventListener('keydown', initializeSounds, true)
+    document.addEventListener('pointerdown', initializeSounds, true);
+    document.addEventListener('keydown', initializeSounds, true);
     return () => {
-      document.removeEventListener('pointerdown', initializeSounds, true)
-      document.removeEventListener('keydown', initializeSounds, true)
-    }
-  }, [])
+      document.removeEventListener('pointerdown', initializeSounds, true);
+      document.removeEventListener('keydown', initializeSounds, true);
+    };
+  }, []);
 
   useEffect(() => {
-    const previous = previousAudioState.current
-    if (obtained && !previous.obtained) playSound('reveal')
-    else if (completedRounds > previous.completedRounds) playSound('next')
-    else if (
+    const previous = previousAudioState.current;
+    if (obtained && !previous.obtained) {
+      playSound('reveal');
+    } else if (completedRounds > previous.completedRounds) {
+      playSound('next');
+    } else if (
       Object.keys(levels).some(
         (key) => levels[key as UpgradeId] > previous.levels[key as UpgradeId],
       )
-    )
-      playSound('purchase')
-    else if (
+    ) {
+      playSound('purchase');
+    } else if (
       previous.collectionTotal - collectionTotal ===
       EXCHANGE_CARD_COUNT - 1
-    )
-      playSound('exchange')
+    ) {
+      playSound('exchange');
+    }
     previousAudioState.current = {
       obtained,
       completedRounds,
       levels,
       collectionTotal,
-    }
-  }, [obtained, completedRounds, levels, collectionTotal])
+    };
+  }, [obtained, completedRounds, levels, collectionTotal]);
 
   useEffect(() => {
     const saved = saveGame({
@@ -175,9 +181,9 @@ export function HomePage() {
       collection: progress.collection,
       boosts: progress.boosts,
       consumablePurchases: progress.consumablePurchases,
-    })
-    const notification = window.setTimeout(() => setStorageError(!saved), 0)
-    return () => window.clearTimeout(notification)
+    });
+    const notification = window.setTimeout(() => setStorageError(!saved), 0);
+    return () => window.clearTimeout(notification);
   }, [
     card.id,
     currentCount,
@@ -189,22 +195,25 @@ export function HomePage() {
     progress.collection,
     progress.boosts,
     progress.consumablePurchases,
-  ])
+  ]);
 
   useEffect(() => {
-    if (levels.auto === 0 || obtained) return
+    if (levels.auto === 0 || obtained) {
+      return;
+    }
 
     const interval = window.setInterval(() => {
       setProgress((previous) => {
         if (
           previous.levels.auto === 0 ||
           previous.currentCount >= previous.requiredClicks
-        )
-          return previous
+        ) {
+          return previous;
+        }
         const nextCount = Math.min(
           previous.currentCount + previous.levels.auto * AUTO_REWARD_PER_LEVEL,
           previous.requiredClicks,
-        )
+        );
         return {
           ...previous,
           currentCount: nextCount,
@@ -218,25 +227,30 @@ export function HomePage() {
                 }
               : previous.collection,
           clickMessage: '',
-        }
-      })
-    }, 1000)
+        };
+      });
+    }, 1000);
 
-    return () => window.clearInterval(interval)
-  }, [levels.auto, obtained, card.id])
+    return () => window.clearInterval(interval);
+  }, [levels.auto, obtained, card.id]);
 
   function exchangeCards(rarity: Rarity, payment: CollectionCounts) {
-    const nextRarity = NEXT_RARITY[rarity]
-    if (!nextRarity) return
-    const rewards = CARDS.filter((card) => card.rarity === nextRarity)
-    const reward = rewards[Math.floor(Math.random() * rewards.length)]
+    const nextRarity = NEXT_RARITY[rarity];
+    if (!nextRarity) {
+      return;
+    }
+
+    const rewards = CARDS.filter((card) => card.rarity === nextRarity);
+    const reward = rewards[Math.floor(Math.random() * rewards.length)];
     setProgress((previous) => {
-      const entries = Object.entries(payment)
+      const entries = Object.entries(payment);
       if (
         entries.reduce((sum, [, count]) => sum + count, 0) !==
         EXCHANGE_CARD_COUNT
-      )
-        return previous
+      ) {
+        return previous;
+      }
+
       if (
         entries.some(
           ([id, count]) =>
@@ -245,41 +259,51 @@ export function HomePage() {
             !CARDS.some((card) => card.id === id && card.rarity === rarity) ||
             count > (previous.collection[id] ?? 0),
         )
-      )
-        return previous
-      const collection = { ...previous.collection }
+      ) {
+        return previous;
+      }
+
+      const collection = { ...previous.collection };
       for (const [id, count] of entries)
-        collection[id] = (collection[id] ?? 0) - count
-      collection[reward.id] = (collection[reward.id] ?? 0) + 1
+        collection[id] = (collection[id] ?? 0) - count;
+      collection[reward.id] = (collection[reward.id] ?? 0) + 1;
       return {
         ...previous,
         collection,
         exchangeMessage: `Exchanged 5 ${rarity} cards for ${reward.name} (${nextRarity}). Find it in the ${nextRarity} tab.`,
-      }
-    })
+      };
+    });
   }
 
   function buyConsumable(id: ConsumableId) {
     setProgress((previous) => {
-      const item = CONSUMABLES.find((item) => item.id === id)
-      if (!item) return previous
+      const item = CONSUMABLES.find((item) => item.id === id);
+      if (!item) {
+        return previous;
+      }
+
       const cost = getConsumableCost(
         item.cost,
         previous.consumablePurchases[id],
-      )
-      if (!Number.isSafeInteger(cost) || previous.sparks < cost) return previous
+      );
+      if (!Number.isSafeInteger(cost) || previous.sparks < cost) {
+        return previous;
+      }
+
       if (
         id === 'reveal-dust' &&
         previous.currentCount >= previous.requiredClicks
-      )
-        return previous
+      ) {
+        return previous;
+      }
+
       const nextCount =
         id === 'reveal-dust'
           ? Math.min(
               previous.requiredClicks,
               previous.currentCount + Math.ceil(previous.requiredClicks * 0.25),
             )
-          : previous.currentCount
+          : previous.currentCount;
       return {
         ...previous,
         sparks: previous.sparks - cost,
@@ -304,26 +328,34 @@ export function HomePage() {
               }
             : previous.collection,
         shopMessage: `${item.name} activated.`,
-      }
-    })
+      };
+    });
   }
 
   function buyUpgrade(id: UpgradeId, cardId?: string) {
-    const nextCardRequirement = getUpgradeCardRarity(levels[id] + 1)
+    const nextCardRequirement = getUpgradeCardRarity(levels[id] + 1);
     setProgress((previous) => {
-      const upgrade = UPGRADES.find((item) => item.id === id)!
-      const cost = getUpgradeCost(upgrade.baseCost, previous.levels[id])
-      if (previous.sparks < cost) return previous
-      if (id === 'critical' && previous.levels.critical >= 10) return previous
-      const rarity = previous.cardRequirements[id]
+      const upgrade = UPGRADES.find((item) => item.id === id)!;
+      const cost = getUpgradeCost(upgrade.baseCost, previous.levels[id]);
+      if (previous.sparks < cost) {
+        return previous;
+      }
+
+      if (id === 'critical' && previous.levels.critical >= 10) {
+        return previous;
+      }
+
+      const rarity = previous.cardRequirements[id];
       const paymentCard = CARDS.find(
         (card) => card.id === cardId && card.rarity === rarity,
-      )
+      );
       if (
         rarity &&
         (!paymentCard || !(previous.collection[paymentCard.id] > 0))
-      )
-        return previous
+      ) {
+        return previous;
+      }
+
       return {
         ...previous,
         sparks: previous.sparks - cost,
@@ -340,12 +372,12 @@ export function HomePage() {
           [id]: nextCardRequirement,
         },
         shopMessage: `${upgrade.name} upgraded to level ${previous.levels[id] + 1}.`,
-      }
-    })
+      };
+    });
   }
 
   function discoverNextCard() {
-    setCard(randomCard())
+    setCard(randomCard());
     setProgress((previous) => ({
       ...previous,
       currentCount: 0,
@@ -355,33 +387,36 @@ export function HomePage() {
         previous.completedRounds + 1,
         previous.levels.mastery,
       ),
-    }))
+    }));
   }
 
   function handleCardClick() {
     if (obtained) {
-      discoverNextCard()
-      return
+      discoverNextCard();
+      return;
     }
 
-    const criticalRoll = Math.random()
-    const critical = criticalRoll < getCriticalChance(levels.critical)
+    const criticalRoll = Math.random();
+    const critical = criticalRoll < getCriticalChance(levels.critical);
     if (
       currentCount +
         (levels.power + 1 + levels.progress * PROGRESS_REWARD_PER_LEVEL) *
           (critical ? 2 : 1) *
           (progress.boosts.focusClicks > 0 ? 2 : 1) <
       requiredClicks
-    )
-      playSound(critical ? 'critical' : 'click')
+    ) {
+      playSound(critical ? 'critical' : 'click');
+    }
     setProgress((previous) => {
-      if (previous.currentCount >= previous.requiredClicks) return previous
+      if (previous.currentCount >= previous.requiredClicks) {
+        return previous;
+      }
       const multiplier =
-        criticalRoll < getCriticalChance(previous.levels.critical) ? 2 : 1
+        criticalRoll < getCriticalChance(previous.levels.critical) ? 2 : 1;
       const earned =
         (previous.levels.power + 1 + previous.levels.fortune * 2) *
         multiplier *
-        (previous.boosts.sparkClicks > 0 ? 2 : 1)
+        (previous.boosts.sparkClicks > 0 ? 2 : 1);
       const nextCount = Math.min(
         previous.currentCount +
           (previous.levels.power +
@@ -390,7 +425,7 @@ export function HomePage() {
             multiplier *
             (previous.boosts.focusClicks > 0 ? 2 : 1),
         previous.requiredClicks,
-      )
+      );
       return {
         ...previous,
         currentCount: nextCount,
@@ -408,14 +443,14 @@ export function HomePage() {
         },
         clickMessage:
           multiplier === 2 ? `Critical click! +${earned} ${CURRENCY_NAME}` : '',
-      }
-    })
+      };
+    });
   }
 
   const onResetButtonClick = () => {
-    resetGame()
-    setProgress(INITIAL_VALUES)
-  }
+    resetGame();
+    setProgress(INITIAL_VALUES);
+  };
 
   return (
     <main className="relative isolate flex min-h-svh flex-col items-center overflow-x-clip bg-page px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-stone-100 sm:px-8">
@@ -447,15 +482,19 @@ export function HomePage() {
             aria-labelledby="reset-progress-heading"
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 m-0 max-w-md overflow-y-auto rounded-xl border border-white/10 bg-surface text-stone-100 backdrop:bg-black/70 backdrop:backdrop-blur-sm"
             onClick={(event) => {
-              if (event.target !== event.currentTarget) return
-              const bounds = event.currentTarget.getBoundingClientRect()
+              if (event.target !== event.currentTarget) {
+                return;
+              }
+
+              const bounds = event.currentTarget.getBoundingClientRect();
               if (
                 event.clientX < bounds.left ||
                 event.clientX > bounds.right ||
                 event.clientY < bounds.top ||
                 event.clientY > bounds.bottom
-              )
-                resetProgressRef.current?.close()
+              ) {
+                resetProgressRef.current?.close();
+              }
             }}
           >
             <div>
@@ -468,8 +507,8 @@ export function HomePage() {
                   aria-label="Yes"
                   className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
                   onClick={() => {
-                    onResetButtonClick()
-                    resetProgressRef.current?.close()
+                    onResetButtonClick();
+                    resetProgressRef.current?.close();
                   }}
                 >
                   Yes
@@ -479,7 +518,7 @@ export function HomePage() {
                   aria-label="No"
                   className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"
                   onClick={() => {
-                    resetProgressRef.current?.close()
+                    resetProgressRef.current?.close();
                   }}
                 >
                   No
@@ -659,15 +698,19 @@ export function HomePage() {
         aria-labelledby="shop-heading"
         className="shop-drawer fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none overscroll-contain w-full max-w-md overflow-y-auto border-l border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
         onClick={(event) => {
-          if (event.target !== event.currentTarget) return
-          const bounds = event.currentTarget.getBoundingClientRect()
+          if (event.target !== event.currentTarget) {
+            return;
+          }
+
+          const bounds = event.currentTarget.getBoundingClientRect();
           if (
             event.clientX < bounds.left ||
             event.clientX > bounds.right ||
             event.clientY < bounds.top ||
             event.clientY > bounds.bottom
-          )
-            shopRef.current?.close()
+          ) {
+            shopRef.current?.close();
+          }
         }}
       >
         <div className="relative min-h-full pb-[env(safe-area-inset-bottom)]">
@@ -702,5 +745,5 @@ export function HomePage() {
         Deckora v{__APP_VERSION__}
       </footer>
     </main>
-  )
+  );
 }

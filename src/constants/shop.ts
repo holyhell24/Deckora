@@ -1,5 +1,5 @@
-import type { UpgradeId, UpgradeLevels } from '../types/upgrade'
-import type { Rarity } from '../types/card'
+import type { UpgradeId, UpgradeLevels } from '../types/upgrade';
+import type { Rarity } from '../types/card';
 
 const UPGRADE_CARD_TIERS: readonly Rarity[] = [
   'White',
@@ -7,17 +7,23 @@ const UPGRADE_CARD_TIERS: readonly Rarity[] = [
   'Blue',
   'Purple',
   'Gold',
-]
+];
 
-export const AUTO_REWARD_PER_LEVEL = 5
-export const PROGRESS_REWARD_PER_LEVEL = 2
-export const SHOP_COST_MULTIPLIER = 1.2
+export const AUTO_REWARD_PER_LEVEL = 5;
+export const PROGRESS_REWARD_PER_LEVEL = 2;
+export const SHOP_COST_MULTIPLIER = 1.2;
 
 // `level` is the currently owned level; card requirements begin at level 10.
 export function getUpgradeCardRarity(level: number): Rarity | null {
-  if (level < 10) return null
-  if (Math.random() >= 0.5) return null
-  return UPGRADE_CARD_TIERS[Math.min(Math.floor(level / 10) - 1, 4)]
+  if (level < 10) {
+    return null;
+  }
+
+  if (Math.random() >= 0.5) {
+    return null;
+  }
+
+  return UPGRADE_CARD_TIERS[Math.min(Math.floor(level / 10) - 1, 4)];
 }
 
 export function getUpgradeCardRequirements(
@@ -30,7 +36,7 @@ export function getUpgradeCardRequirements(
     fortune: getUpgradeCardRarity(levels.fortune),
     critical: getUpgradeCardRarity(levels.critical),
     auto: getUpgradeCardRarity(levels.auto),
-  }
+  };
 }
 
 export const UPGRADES = [
@@ -74,32 +80,32 @@ export const UPGRADES = [
     baseCost: 1000,
   },
 ] as const satisfies readonly {
-  id: UpgradeId
-  name: string
-  description: string
-  baseCost: number
-}[]
+  id: UpgradeId;
+  name: string;
+  description: string;
+  baseCost: number;
+}[];
 
 export const getUpgradeCost = (baseCost: number, level: number) =>
-  Math.ceil(baseCost * SHOP_COST_MULTIPLIER ** level)
+  Math.ceil(baseCost * SHOP_COST_MULTIPLIER ** level);
 
-export const getCriticalChance = (level: number) => Math.min(level * 0.05, 0.5)
+export const getCriticalChance = (level: number) => Math.min(level * 0.05, 0.5);
 
 export function getUpgradeEffect(id: UpgradeId, level: number): string {
   switch (id) {
     case 'auto':
       return level === 0
         ? 'Disabled'
-        : `+${level * AUTO_REWARD_PER_LEVEL} progress and +${level * AUTO_REWARD_PER_LEVEL} currency per second`
+        : `+${level * AUTO_REWARD_PER_LEVEL} progress and +${level * AUTO_REWARD_PER_LEVEL} currency per second`;
     case 'power':
-      return `${level + 1} progress and base currency per click`
+      return `${level + 1} progress and base currency per click`;
     case 'mastery':
-      return `${Math.round((1 - 0.9 ** level) * 100)}% target reduction`
+      return `${Math.round((1 - 0.9 ** level) * 100)}% target reduction`;
     case 'fortune':
-      return `+${level * 2} bonus currency per click`
+      return `+${level * 2} bonus currency per click`;
     case 'progress':
-      return `+${level * PROGRESS_REWARD_PER_LEVEL} bonus progress per click`
+      return `+${level * PROGRESS_REWARD_PER_LEVEL} bonus progress per click`;
     case 'critical':
-      return `${Math.round(getCriticalChance(level) * 100)}% double-click reward chance`
+      return `${Math.round(getCriticalChance(level) * 100)}% double-click reward chance`;
   }
 }

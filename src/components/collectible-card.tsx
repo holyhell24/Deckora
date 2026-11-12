@@ -1,14 +1,14 @@
-import { useRef, type PointerEvent } from 'react'
-import type { Card } from '../types/card'
-import hiddenFace from '../assets/cards/hidden.svg'
+import { useRef, type PointerEvent } from 'react';
+import type { Card } from '../types/card';
+import hiddenFace from '../assets/cards/hidden.svg';
 
 type CollectibleCardProps = {
-  card: Card
-  revealed: boolean
-  currentCount: number
-  requiredClicks: number
-  onClick: () => void
-}
+  card: Card;
+  revealed: boolean;
+  currentCount: number;
+  requiredClicks: number;
+  onClick: () => void;
+};
 
 export function CollectibleCard({
   card,
@@ -17,33 +17,35 @@ export function CollectibleCard({
   requiredClicks,
   onClick,
 }: CollectibleCardProps) {
-  const surfaceRef = useRef<HTMLDivElement>(null)
+  const surfaceRef = useRef<HTMLDivElement>(null);
   const fillPercentage = Math.max(
     0,
     Math.min(100, (currentCount / requiredClicks) * 100),
-  )
-  const face = revealed ? card.image : hiddenFace
+  );
+  const face = revealed ? card.image : hiddenFace;
 
   function resetTilt() {
-    surfaceRef.current?.style.setProperty('--tilt-x', '0deg')
-    surfaceRef.current?.style.setProperty('--tilt-y', '0deg')
+    surfaceRef.current?.style.setProperty('--tilt-x', '0deg');
+    surfaceRef.current?.style.setProperty('--tilt-y', '0deg');
   }
 
   function updateTilt(event: PointerEvent<HTMLDivElement>) {
-    if (event.pointerType !== 'mouse') return
+    if (event.pointerType !== 'mouse') {
+      return;
+    }
 
-    const bounds = event.currentTarget.getBoundingClientRect()
+    const bounds = event.currentTarget.getBoundingClientRect();
     const x = Math.max(
       0,
       Math.min(1, (event.clientX - bounds.left) / bounds.width),
-    )
+    );
     const y = Math.max(
       0,
       Math.min(1, (event.clientY - bounds.top) / bounds.height),
-    )
+    );
 
-    surfaceRef.current?.style.setProperty('--tilt-x', `${(0.5 - y) * 20}deg`)
-    surfaceRef.current?.style.setProperty('--tilt-y', `${(x - 0.5) * 20}deg`)
+    surfaceRef.current?.style.setProperty('--tilt-x', `${(0.5 - y) * 20}deg`);
+    surfaceRef.current?.style.setProperty('--tilt-y', `${(x - 0.5) * 20}deg`);
   }
 
   return (
@@ -101,5 +103,5 @@ export function CollectibleCard({
         />
       </div>
     </div>
-  )
+  );
 }

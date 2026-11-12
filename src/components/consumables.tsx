@@ -1,19 +1,19 @@
-import { CONSUMABLES, getConsumableCost } from '../constants/consumables'
-import { CURRENCY_NAME } from '../constants/clicker'
+import { CONSUMABLES, getConsumableCost } from '../constants/consumables';
+import { CURRENCY_NAME } from '../constants/clicker';
 import type {
   ActiveBoosts,
   ConsumableId,
   ConsumablePurchases,
-} from '../types/consumable'
-import { Button } from './ui/button'
+} from '../types/consumable';
+import { Button } from './ui/button';
 
 type Props = {
-  balance: number
-  boosts: ActiveBoosts
-  purchases: ConsumablePurchases
-  revealed: boolean
-  onBuy: (id: ConsumableId) => void
-}
+  balance: number;
+  boosts: ActiveBoosts;
+  purchases: ConsumablePurchases;
+  revealed: boolean;
+  onBuy: (id: ConsumableId) => void;
+};
 export function Consumables({
   balance,
   boosts,
@@ -29,13 +29,13 @@ export function Consumables({
         from tonics.
       </p>
       {CONSUMABLES.map((item) => {
-        const cost = getConsumableCost(item.cost, purchases[item.id])
+        const cost = getConsumableCost(item.cost, purchases[item.id]);
         const remaining =
           item.id === 'spark-tonic'
             ? boosts.sparkClicks
             : item.id === 'focus-tonic'
               ? boosts.focusClicks
-              : 0
+              : 0;
         return (
           <div
             key={item.id}
@@ -69,8 +69,8 @@ export function Consumables({
                 : '\u00a0'}
             </p>
           </div>
-        )
+        );
       })}
     </div>
-  )
+  );
 }

@@ -1,39 +1,45 @@
-import { useRef, useState } from 'react'
-import hiddenFace from '../assets/cards/hidden.svg'
-import type { Rarity } from '../types/card'
-import { CARDS } from '../constants/cards'
-import type { CollectionCounts } from '../types/collection'
-import { Button } from './ui/button'
-import { CardExchange } from './card-exchange'
-import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange'
+import { useRef, useState } from 'react';
+import hiddenFace from '../assets/cards/hidden.svg';
+import type { Rarity } from '../types/card';
+import { CARDS } from '../constants/cards';
+import type { CollectionCounts } from '../types/collection';
+import { Button } from './ui/button';
+import { CardExchange } from './card-exchange';
+import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange';
 
-const RARITIES: readonly Rarity[] = ['White', 'Green', 'Blue', 'Purple', 'Gold']
+const RARITIES: readonly Rarity[] = [
+  'White',
+  'Green',
+  'Blue',
+  'Purple',
+  'Gold',
+];
 
 export function Collection({
   counts,
   onExchange,
   exchangeMessage,
 }: {
-  counts: CollectionCounts
-  onExchange: (rarity: Rarity, payment: CollectionCounts) => void
-  exchangeMessage: string
+  counts: CollectionCounts;
+  onExchange: (rarity: Rarity, payment: CollectionCounts) => void;
+  exchangeMessage: string;
 }) {
-  const dialogRef = useRef<HTMLDialogElement>(null)
-  const [activeRarity, setActiveRarity] = useState<Rarity>('White')
-  const [selection, setSelection] = useState<CollectionCounts>({})
-  const visibleCards = CARDS.filter((card) => card.rarity === activeRarity)
+  const dialogRef = useRef<HTMLDialogElement>(null);
+  const [activeRarity, setActiveRarity] = useState<Rarity>('White');
+  const [selection, setSelection] = useState<CollectionCounts>({});
+  const visibleCards = CARDS.filter((card) => card.rarity === activeRarity);
   const payment = Object.fromEntries(
     visibleCards.map((card) => [
       card.id,
       Math.min(selection[card.id] ?? 0, counts[card.id] ?? 0),
     ]),
-  )
+  );
   const selectedCount = Object.values(payment).reduce(
     (sum, count) => sum + count,
     0,
-  )
-  const discovered = CARDS.filter((card) => counts[card.id] > 0)
-  const total = Object.values(counts).reduce((sum, count) => sum + count, 0)
+  );
+  const discovered = CARDS.filter((card) => counts[card.id] > 0);
+  const total = Object.values(counts).reduce((sum, count) => sum + count, 0);
 
   return (
     <>
@@ -52,15 +58,19 @@ export function Collection({
         aria-labelledby="collection-heading"
         className="fixed inset-0 m-auto h-dvh max-h-none w-full max-w-4xl overscroll-contain overflow-y-auto rounded-none sm:h-auto sm:max-h-[90dvh] sm:w-[calc(100%-2rem)] sm:rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
         onClick={(event) => {
-          if (event.target !== event.currentTarget) return
-          const bounds = event.currentTarget.getBoundingClientRect()
+          if (event.target !== event.currentTarget) {
+            return;
+          }
+
+          const bounds = event.currentTarget.getBoundingClientRect();
           if (
             event.clientX < bounds.left ||
             event.clientX > bounds.right ||
             event.clientY < bounds.top ||
             event.clientY > bounds.bottom
-          )
-            dialogRef.current?.close()
+          ) {
+            dialogRef.current?.close();
+          }
         }}
       >
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-6">
@@ -100,24 +110,30 @@ export function Collection({
               aria-selected={activeRarity === rarity}
               tabIndex={activeRarity === rarity ? 0 : -1}
               onClick={() => {
-                setActiveRarity(rarity)
-                setSelection({})
+                setActiveRarity(rarity);
+                setSelection({});
               }}
               onKeyDown={(event) => {
-                let nextIndex = index
-                if (event.key === 'ArrowRight')
-                  nextIndex = (index + 1) % RARITIES.length
-                else if (event.key === 'ArrowLeft')
-                  nextIndex = (index - 1 + RARITIES.length) % RARITIES.length
-                else if (event.key === 'Home') nextIndex = 0
-                else if (event.key === 'End') nextIndex = RARITIES.length - 1
-                else return
-                event.preventDefault()
-                setActiveRarity(RARITIES[nextIndex])
-                setSelection({})
+                let nextIndex = index;
+
+                if (event.key === 'ArrowRight') {
+                  nextIndex = (index + 1) % RARITIES.length;
+                } else if (event.key === 'ArrowLeft') {
+                  nextIndex = (index - 1 + RARITIES.length) % RARITIES.length;
+                } else if (event.key === 'Home') {
+                  nextIndex = 0;
+                } else if (event.key === 'End') {
+                  nextIndex = RARITIES.length - 1;
+                } else {
+                  return;
+                }
+
+                event.preventDefault();
+                setActiveRarity(RARITIES[nextIndex]);
+                setSelection({});
                 document
                   .getElementById(`collection-tab-${RARITIES[nextIndex]}`)
-                  ?.focus()
+                  ?.focus();
               }}
               className={`min-h-11 shrink-0 cursor-pointer whitespace-nowrap rounded-lg border px-4 py-2 text-sm transition-colors focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-amber-200 ${activeRarity === rarity ? 'border-amber-200/40 bg-amber-200/10 text-amber-100' : 'border-white/10 text-stone-400 hover:bg-white/5 hover:text-white'}`}
             >
@@ -206,5 +222,5 @@ export function Collection({
         </div>
       </dialog>
     </>
-  )
+  );
 }

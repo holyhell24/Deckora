@@ -1,1 +1,1 @@
-export type CollectionCounts = Record<string, number>
+export type CollectionCounts = Record<string, number>;

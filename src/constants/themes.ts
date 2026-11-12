@@ -4,7 +4,7 @@ export const THEMES = [
   { id: 'ocean', name: 'Ocean' },
   { id: 'amethyst', name: 'Amethyst' },
   { id: 'ember', name: 'Ember' },
-] as const
+] as const;
 
-export type ThemeId = (typeof THEMES)[number]['id']
-export const THEME_STORAGE_KEY = 'deckora.theme.v1'
+export type ThemeId = (typeof THEMES)[number]['id'];
+export const THEME_STORAGE_KEY = 'deckora.theme.v1';

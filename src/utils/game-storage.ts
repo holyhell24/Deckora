@@ -1,9 +1,9 @@
-import type { SavedGame } from '../types/save'
-import type { Rarity } from '../types/card'
-import type { UpgradeId } from '../types/upgrade'
-import { getUpgradeCardRequirements } from '../constants/shop'
+import type { SavedGame } from '../types/save';
+import type { Rarity } from '../types/card';
+import type { UpgradeId } from '../types/upgrade';
+import { getUpgradeCardRequirements } from '../constants/shop';
 
-export const SAVE_KEY = 'deckora.save.v1'
+export const SAVE_KEY = 'deckora.save.v1';
 const UPGRADE_IDS: readonly UpgradeId[] = [
   'power',
   'progress',
@@ -11,44 +11,57 @@ const UPGRADE_IDS: readonly UpgradeId[] = [
   'fortune',
   'critical',
   'auto',
-]
+];
 const CARD_RARITIES: readonly Rarity[] = [
   'White',
   'Green',
   'Blue',
   'Purple',
   'Gold',
-]
+];
 
 const isCount = (value: unknown): value is number =>
-  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0
+  typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
 
 export function parseSavedGame(
   raw: string,
   validCardIds: readonly string[],
 ): SavedGame | null {
   try {
-    const save = JSON.parse(raw)
-    if (!save || save.version !== 1 || !validCardIds.includes(save.cardId))
-      return null
+    const save = JSON.parse(raw);
+    if (!save || save.version !== 1 || !validCardIds.includes(save.cardId)) {
+      return null;
+    }
+
     if (
       !['currentCount', 'sparks', 'completedRounds', 'requiredClicks'].every(
         (key) => isCount(save[key]),
       )
-    )
-      return null
-    if (save.requiredClicks < 1 || save.currentCount > save.requiredClicks)
-      return null
+    ) {
+      return null;
+    }
+
+    if (save.requiredClicks < 1 || save.currentCount > save.requiredClicks) {
+      return null;
+    }
+
     if (
       !save.levels ||
       !['power', 'mastery', 'fortune', 'critical', 'auto'].every((key) =>
         isCount(save.levels[key]),
       )
-    )
-      return null
-    if (save.levels.progress !== undefined && !isCount(save.levels.progress))
-      return null
-    if (save.levels.critical > 10) return null
+    ) {
+      return null;
+    }
+
+    if (save.levels.progress !== undefined && !isCount(save.levels.progress)) {
+      return null;
+    }
+
+    if (save.levels.critical > 10) {
+      return null;
+    }
+
     if (
       save.cardRequirements !== undefined &&
       (!save.cardRequirements ||
@@ -59,35 +72,45 @@ export function parseSavedGame(
             save.cardRequirements[id] === null ||
             CARD_RARITIES.includes(save.cardRequirements[id]),
         ))
-    )
-      return null
+    ) {
+      return null;
+    }
+
     if (
       save.consumablePurchases !== undefined &&
       (!save.consumablePurchases ||
         !['spark-tonic', 'focus-tonic', 'reveal-dust'].every((id) =>
           isCount(save.consumablePurchases[id]),
         ))
-    )
-      return null
+    ) {
+      return null;
+    }
+
     if (
       save.boosts !== undefined &&
       (!save.boosts ||
         !isCount(save.boosts.sparkClicks) ||
         !isCount(save.boosts.focusClicks))
-    )
-      return null
+    ) {
+      return null;
+    }
+
     if (
       !save.collection ||
       typeof save.collection !== 'object' ||
       Array.isArray(save.collection)
-    )
-      return null
+    ) {
+      return null;
+    }
+
     if (
       !Object.entries(save.collection).every(
         ([id, count]) => validCardIds.includes(id) && isCount(count),
       )
-    )
-      return null
+    ) {
+      return null;
+    }
+
     return {
       version: 1,
       cardId: save.cardId,
@@ -123,34 +146,34 @@ export function parseSavedGame(
         sparkClicks: save.boosts?.sparkClicks ?? 0,
         focusClicks: save.boosts?.focusClicks ?? 0,
       },
-    }
+    };
   } catch {
-    return null
+    return null;
   }
 }
 
 export function resetGame() {
   try {
-    localStorage.removeItem(SAVE_KEY)
+    localStorage.removeItem(SAVE_KEY);
   } catch {
-    return null
+    return null;
   }
 }
 
 export function loadGame(validCardIds: readonly string[]): SavedGame | null {
   try {
-    const raw = localStorage.getItem(SAVE_KEY)
-    return raw ? parseSavedGame(raw, validCardIds) : null
+    const raw = localStorage.getItem(SAVE_KEY);
+    return raw ? parseSavedGame(raw, validCardIds) : null;
   } catch {
-    return null
+    return null;
   }
 }
 
 export function saveGame(save: SavedGame): boolean {
   try {
-    localStorage.setItem(SAVE_KEY, JSON.stringify(save))
-    return true
+    localStorage.setItem(SAVE_KEY, JSON.stringify(save));
+    return true;
   } catch {
-    return false
+    return false;
   }
 }
