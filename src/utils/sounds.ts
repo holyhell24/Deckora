@@ -2,14 +2,37 @@ import { Howl, Howler } from 'howler';
 import click from '../assets/sounds/click.wav';
 import critical from '../assets/sounds/critical.wav';
 import reveal from '../assets/sounds/reveal.wav';
+import revealBlue from '../assets/sounds/reveal-blue.wav';
+import revealGold from '../assets/sounds/reveal-gold.wav';
+import revealGreen from '../assets/sounds/reveal-green.wav';
+import revealPurple from '../assets/sounds/reveal-purple.wav';
 import purchase from '../assets/sounds/purchase.wav';
 import exchange from '../assets/sounds/exchange.wav';
 import next from '../assets/sounds/next.wav';
+import type { Rarity } from '../types/card';
 
 const STORAGE_KEY = 'deckora.sound.v1';
-const sources = { click, critical, reveal, purchase, exchange, next };
+const sources = {
+  click,
+  critical,
+  reveal,
+  revealGreen,
+  revealBlue,
+  revealPurple,
+  revealGold,
+  purchase,
+  exchange,
+  next,
+};
 type Sound = keyof typeof sources;
 const sounds = new Map<Sound, Howl>();
+const rarityRevealSounds: Record<Rarity, Sound> = {
+  White: 'reveal',
+  Green: 'revealGreen',
+  Blue: 'revealBlue',
+  Purple: 'revealPurple',
+  Gold: 'revealGold',
+};
 let enabled = true;
 try {
   enabled = localStorage.getItem(STORAGE_KEY) !== 'off';
@@ -68,4 +91,8 @@ export function playSound(name: Sound) {
   // Reuse the effect rather than stacking many rapid taps.
   sound.stop();
   sound.play();
+}
+
+export function playRevealSound(rarity: Rarity) {
+  playSound(rarityRevealSounds[rarity]);
 }

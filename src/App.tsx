@@ -3,7 +3,7 @@ import { useEffect, useMemo, useRef, useState } from 'react';
 import { CollectibleCard } from './components/collectible-card';
 import { ThemeSelector } from './components/theme-selector';
 import { SoundToggle } from './components/sound-toggle';
-import { initializeSounds, playSound } from './utils/sounds';
+import { initializeSounds, playRevealSound, playSound } from './utils/sounds';
 import { Collection } from './components/collection';
 import type { CollectionCounts } from './types/collection';
 import { Button } from './components/ui/button';
@@ -156,7 +156,7 @@ export default function App() {
   useEffect(() => {
     const previous = previousAudioState.current;
     if (obtained && !previous.obtained) {
-      playSound('reveal');
+      playRevealSound(card.rarity);
     } else if (completedRounds > previous.completedRounds) {
       playSound('next');
     } else if (
@@ -177,7 +177,7 @@ export default function App() {
       levels,
       collectionTotal,
     };
-  }, [obtained, completedRounds, levels, collectionTotal]);
+  }, [obtained, completedRounds, levels, collectionTotal, card.rarity]);
 
   useEffect(() => {
     const saved = saveGame({

@@ -1,4 +1,4 @@
-import { useRef, type PointerEvent } from 'react';
+import { useRef, useState, type PointerEvent } from 'react';
 import type { Card } from '../types/card';
 import hiddenFace from '../assets/cards/hidden.svg';
 
@@ -18,11 +18,21 @@ export function CollectibleCard({
   onClick,
 }: CollectibleCardProps) {
   const surfaceRef = useRef<HTMLDivElement>(null);
+  const [revealState, setRevealState] = useState<{
+    revealed: boolean;
+    rarity: Card['rarity'] | null;
+  }>({ revealed, rarity: null });
+  if (revealState.revealed !== revealed) {
+    setRevealState({ revealed, rarity: revealed ? card.rarity : null });
+  }
   const fillPercentage = Math.max(
     0,
     Math.min(100, (currentCount / requiredClicks) * 100),
   );
   const face = revealed ? card.image : hiddenFace;
+  const revealClass = revealState.rarity
+    ? `card-reveal-${revealState.rarity.toLowerCase()}`
+    : '';
 
   function resetTilt() {
     surfaceRef.current?.style.setProperty('--tilt-x', '0deg');
@@ -68,7 +78,7 @@ export function CollectibleCard({
               ? `${card.name} obtained. Click to discover another card`
               : 'Click to uncover the hidden card'
           }
-          className="relative block w-full touch-manipulation select-none overflow-hidden rounded-2xl shadow-[0_24px_80px_#0008] transition-transform duration-150 enabled:cursor-pointer enabled:active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-stone-200 motion-reduce:transform-none motion-reduce:transition-none"
+          className={`relative block w-full touch-manipulation select-none overflow-hidden rounded-2xl shadow-[0_24px_80px_#0008] transition-transform duration-150 enabled:cursor-pointer enabled:active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-stone-200 motion-reduce:transform-none motion-reduce:transition-none ${revealClass}`}
         >
           <img
             src={face}

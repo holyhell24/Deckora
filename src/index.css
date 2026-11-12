@@ -70,6 +70,274 @@
   .shop-drawer {
     transition: none;
   }
+
+  .card-reveal-white,
+  .card-reveal-green,
+  .card-reveal-green::after,
+  .card-reveal-blue,
+  .card-reveal-blue::after,
+  .card-reveal-purple,
+  .card-reveal-purple::after,
+  .card-reveal-gold,
+  .card-reveal-gold::after {
+    animation: none;
+  }
+}
+
+.card-reveal-white {
+  --card-reveal-glow: 248 250 252;
+  animation: card-reveal-common 560ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.card-reveal-green {
+  animation: card-reveal-green 680ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.card-reveal-green::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgb(134 239 172 / 0.5),
+    transparent 70%
+  );
+  content: '';
+  pointer-events: none;
+  animation: card-reveal-green-glow 680ms ease-out both;
+}
+
+.card-reveal-blue {
+  animation: card-reveal-blue 760ms cubic-bezier(0.2, 0.8, 0.2, 1) both;
+}
+
+.card-reveal-blue::after {
+  position: absolute;
+  inset: -20% -70%;
+  background: linear-gradient(
+    110deg,
+    transparent 38%,
+    rgb(191 219 254 / 0.7) 50%,
+    transparent 62%
+  );
+  content: '';
+  pointer-events: none;
+  animation: card-reveal-blue-shine 760ms ease-out both;
+}
+
+.card-reveal-purple {
+  animation: card-reveal-purple 900ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.card-reveal-purple::after {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    circle at center,
+    rgb(216 180 254 / 0.45),
+    transparent 68%
+  );
+  content: '';
+  pointer-events: none;
+  animation: card-reveal-purple-glow 900ms ease-out both;
+}
+
+.card-reveal-gold {
+  animation: card-reveal-gold 1300ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+.card-reveal-gold::after {
+  position: absolute;
+  inset: -30% -70%;
+  background: linear-gradient(
+    115deg,
+    transparent 38%,
+    rgb(255 255 255 / 0.08) 44%,
+    rgb(255 248 190 / 0.9) 50%,
+    rgb(255 255 255 / 0.08) 56%,
+    transparent 62%
+  );
+  content: '';
+  pointer-events: none;
+  animation: card-reveal-gold-shine 1100ms 180ms ease-out both;
+}
+
+@keyframes card-reveal-common {
+  0% {
+    box-shadow: 0 24px 80px #0008;
+    transform: scale(0.9);
+  }
+
+  60% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 30px 4px rgb(var(--card-reveal-glow) / 0.5);
+    transform: scale(1.04);
+  }
+
+  100% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 16px 1px rgb(var(--card-reveal-glow) / 0.35);
+    transform: scale(1);
+  }
+}
+
+@keyframes card-reveal-green {
+  0% {
+    box-shadow: 0 24px 80px #0008;
+    transform: scale(0.9);
+  }
+
+  48% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 34px 5px rgb(134 239 172 / 0.55);
+    transform: scale(1.05);
+  }
+
+  72% {
+    transform: scale(0.98);
+  }
+
+  100% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 18px 2px rgb(134 239 172 / 0.3);
+    transform: scale(1);
+  }
+}
+
+@keyframes card-reveal-green-glow {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  35%,
+  65% {
+    opacity: 1;
+  }
+}
+
+@keyframes card-reveal-blue {
+  0% {
+    box-shadow: 0 24px 80px #0008;
+    transform: scale(0.88) rotateY(-12deg);
+  }
+
+  48% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 38px 6px rgb(147 197 253 / 0.6);
+    transform: scale(1.04) rotateY(5deg);
+  }
+
+  100% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 20px 3px rgb(147 197 253 / 0.35);
+    transform: scale(1) rotateY(0);
+  }
+}
+
+@keyframes card-reveal-blue-shine {
+  0% {
+    opacity: 0;
+    transform: translateX(-80%) rotate(10deg);
+  }
+
+  25%,
+  65% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(80%) rotate(10deg);
+  }
+}
+
+@keyframes card-reveal-purple {
+  0% {
+    box-shadow: 0 24px 80px #0008;
+    transform: scale(0.78) rotate(-8deg);
+  }
+
+  42% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 42px 8px rgb(216 180 254 / 0.65);
+    transform: scale(1.06) rotate(3deg);
+  }
+
+  70% {
+    transform: scale(0.97) rotate(-1deg);
+  }
+
+  100% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 24px 4px rgb(216 180 254 / 0.4);
+    transform: scale(1);
+  }
+}
+
+@keyframes card-reveal-purple-glow {
+  0%,
+  100% {
+    opacity: 0;
+  }
+
+  35%,
+  65% {
+    opacity: 1;
+  }
+}
+
+@keyframes card-reveal-gold {
+  0% {
+    box-shadow: 0 24px 80px #0008;
+    transform: scale(0.68) rotate(-14deg) rotateY(-28deg);
+  }
+
+  36% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 54px 12px rgb(253 230 138 / 0.8);
+    transform: scale(1.08) rotate(7deg) rotateY(12deg);
+  }
+
+  58% {
+    transform: scale(0.96) rotate(-2deg) rotateY(-5deg);
+  }
+
+  78% {
+    transform: scale(1.03) rotate(0) rotateY(2deg);
+  }
+
+  100% {
+    box-shadow:
+      0 24px 80px #0008,
+      0 0 32px 7px rgb(253 230 138 / 0.55);
+    transform: scale(1) rotate(0) rotateY(0);
+  }
+}
+
+@keyframes card-reveal-gold-shine {
+  0% {
+    opacity: 0;
+    transform: translateX(-80%) rotate(12deg);
+  }
+
+  24%,
+  65% {
+    opacity: 1;
+  }
+
+  100% {
+    opacity: 0;
+    transform: translateX(80%) rotate(12deg);
+  }
 }
 
 .select-control {
