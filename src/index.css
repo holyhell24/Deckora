@@ -80,7 +80,8 @@
   .card-reveal-purple::after,
   .card-reveal-gold,
   .card-reveal-gold::after {
-    animation: none;
+    animation-duration: 1ms;
+    animation-delay: 0s;
   }
 }
 

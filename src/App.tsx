@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useLayoutEffect, useRef, useState } from 'react';
 
 import { CollectibleCard } from './components/collectible-card';
 import { ThemeSelector } from './components/theme-selector';
@@ -150,6 +150,14 @@ export default function App() {
     gameLoadState.uid === accountUid &&
     gameLoadState.attempt === gameLoadAttempt;
   const obtained = currentCount >= requiredClicks;
+  const [revealAnimationComplete, setRevealAnimationComplete] = useState(true);
+  const previousObtained = useRef(obtained);
+  useLayoutEffect(() => {
+    if (obtained !== previousObtained.current) {
+      previousObtained.current = obtained;
+      setRevealAnimationComplete(!obtained);
+    }
+  }, [obtained]);
   const sparkBoost = progress.boosts.sparkClicks > 0;
   const focusBoost = progress.boosts.focusClicks > 0;
   const progressPerClick =
@@ -546,6 +554,10 @@ export default function App() {
   }
 
   function handleCardClick() {
+    if (!revealAnimationComplete) {
+      return;
+    }
+
     if (obtained) {
       discoverNextCard();
       return;
@@ -810,7 +822,9 @@ export default function App() {
             revealed={obtained}
             currentCount={currentCount}
             requiredClicks={requiredClicks}
+            disabled={!revealAnimationComplete}
             onClick={handleCardClick}
+            onRevealAnimationEnd={() => setRevealAnimationComplete(true)}
           />
 
           <div className="mt-6 w-full max-w-xs">
@@ -914,17 +928,6 @@ export default function App() {
                 {progress.clickMessage}
               </p>
             </div>
-          </div>
-          <div className="mt-6 flex h-10 items-center">
-            {obtained && (
-              <Button
-                variant="secondary"
-                className="cursor-pointer"
-                onClick={discoverNextCard}
-              >
-                Discover another card
-              </Button>
-            )}
           </div>
         </section>
       </div>

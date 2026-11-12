@@ -1,4 +1,9 @@
-import { useRef, useState, type PointerEvent } from 'react';
+import {
+  useRef,
+  useState,
+  type AnimationEvent,
+  type PointerEvent,
+} from 'react';
 import type { Card } from '../types/card';
 import hiddenFace from '../assets/cards/hidden.svg';
 
@@ -7,7 +12,9 @@ type CollectibleCardProps = {
   revealed: boolean;
   currentCount: number;
   requiredClicks: number;
+  disabled: boolean;
   onClick: () => void;
+  onRevealAnimationEnd: () => void;
 };
 
 export function CollectibleCard({
@@ -15,7 +22,9 @@ export function CollectibleCard({
   revealed,
   currentCount,
   requiredClicks,
+  disabled,
   onClick,
+  onRevealAnimationEnd,
 }: CollectibleCardProps) {
   const surfaceRef = useRef<HTMLDivElement>(null);
   const [revealState, setRevealState] = useState<{
@@ -33,6 +42,16 @@ export function CollectibleCard({
   const revealClass = revealState.rarity
     ? `card-reveal-${revealState.rarity.toLowerCase()}`
     : '';
+
+  function handleAnimationEnd(event: AnimationEvent<HTMLButtonElement>) {
+    if (
+      event.target === event.currentTarget &&
+      !event.pseudoElement &&
+      event.animationName.startsWith('card-reveal-')
+    ) {
+      onRevealAnimationEnd();
+    }
+  }
 
   function resetTilt() {
     surfaceRef.current?.style.setProperty('--tilt-x', '0deg');
@@ -72,11 +91,15 @@ export function CollectibleCard({
       >
         <button
           type="button"
+          disabled={disabled}
           onClick={onClick}
+          onAnimationEnd={handleAnimationEnd}
           aria-label={
-            revealed
-              ? `${card.name} obtained. Click to discover another card`
-              : 'Click to uncover the hidden card'
+            disabled
+              ? `${card.name} reveal animation in progress`
+              : revealed
+                ? `${card.name} obtained. Click to discover another card`
+                : 'Click to uncover the hidden card'
           }
           className={`relative block w-full touch-manipulation select-none overflow-hidden rounded-2xl shadow-[0_24px_80px_#0008] transition-transform duration-150 enabled:cursor-pointer enabled:active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-stone-200 motion-reduce:transform-none motion-reduce:transition-none ${revealClass}`}
         >
