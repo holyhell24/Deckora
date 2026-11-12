@@ -1,51 +1,19 @@
 # Deckora
 
-React + TypeScript with Vite, Tailwind CSS, and Class Variance Authority (CVA).
+Deckora is a collectible card discovery game. Build progress, uncover cards, and
+grow your collection one discovery at a time.
 
-## Development
+## How to play
 
-```sh
-npm install
-npm run dev
-```
+- Tap or click the card to make progress and earn Sparks.
+- When progress is complete, the card is revealed and added to your collection.
+- Select the revealed card again to begin your next discovery. You can also use
+  Enter or Space when the card is focused.
+- Spend Sparks in the shop to improve your progress and discover cards faster.
+- Visit your collection to see your cards or exchange five cards for one from
+  the next rarity.
+- Send a Spectral Gift to another player by nickname. They can claim the card
+  and add it to their collection.
 
-`npm run build` checks TypeScript and builds for production. `npm run lint` runs Oxlint. `npm run preview` serves the production build locally.
-
-Firebase is initialized from the project configuration in `src/firebase.ts`.
-Enable Email/Password sign-in in Firebase Authentication and create a Firestore
-database. Deploy the Firestore rules with
-`npx firebase-tools deploy --project deckora-c8b26 --only firestore:rules`. If
-prompted to authenticate first, run `npx firebase-tools login`. This setup uses
-Firebase Authentication directly and does not require the Blaze plan.
-
-The app uses email/password accounts and a separate nickname. Nicknames are
-unique without regard to capitalization, preserve the casing entered, and
-must be 3–15 letters or numbers. Firebase Authentication requires passwords
-with at least 6 characters. Existing anonymous profiles are not migrated.
-Existing anonymous or username-only profiles are not migrated, and any
-previously deployed Cloud Functions must be removed separately. Game progress
-is stored in Firestore per signed-in account. A pre-existing browser save is
-imported when the account has no cloud save. Only the current click count and
-target are mirrored in local storage; theme and sound preferences remain on
-the device. Spectral gifts are sent by nickname; sending removes one copy from
-the sender, and the recipient can claim the card from their gift inbox to add it
-to their collection. Firestore client access is restricted by `firestore.rules`.
-
-## Structure
-
-```text
-src/
-  assets/         Images and other imported assets
-  components/     Shared reusable components
-    ui/           Common UI primitives styled with CVA
-  types/          Types shared by multiple components
-  constants/      Constants shared across the application
-  App.tsx         Application entry component
-  index.css       Tailwind import and global styles
-```
-
-Keep types and constants close to their owner until multiple components need them. Then move them to the shared folders at the source root (`src/`).
-
-`src/components/ui/button.tsx` provides primary/secondary variants and sm/md/lg sizes. Its `className` supports Tailwind overrides through `tailwind-merge`. The `input.tsx` and `select.tsx` primitives provide shared form-control styling.
-
-Tailwind uses the official Vite plugin: https://tailwindcss.com/docs/installation/using-vite
+Sign in to keep your progress with your account. Use the settings drawer to
+update your profile, sound, theme, or game progress.
