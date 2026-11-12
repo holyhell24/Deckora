@@ -36,6 +36,8 @@ import {
 import type { ConsumableId } from '../types/consumable';
 import { ResetProgress } from '../components/reset-progress';
 import { closeDialogOnBackdropClick } from '../utils/dialog';
+import { useNickname } from '../hooks/use-nickname';
+import { NicknameSetup } from '../components/nickname-setup';
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS);
@@ -87,6 +89,7 @@ const INITIAL_VALUES = {
 };
 
 export function HomePage() {
+  const nicknameSession = useNickname();
   const shopRef = useRef<HTMLDialogElement>(null);
   const resetProgressRef = useRef<HTMLDialogElement>(null);
   const [dataResetSucceeded] = useState(resetDataForRelease);
@@ -466,6 +469,19 @@ export function HomePage() {
     setProgress(INITIAL_VALUES);
   };
 
+  if (nicknameSession.user.status !== 'ready') {
+    return (
+      <NicknameSetup
+        status={nicknameSession.user.status}
+        error={nicknameSession.user.error}
+        saving={nicknameSession.saving}
+        submitError={nicknameSession.submitError}
+        onSubmit={nicknameSession.claimNickname}
+        onRetry={nicknameSession.retry}
+      />
+    );
+  }
+
   return (
     <main className="relative isolate flex min-h-svh flex-col items-center overflow-x-clip bg-page px-4 pb-[max(1.5rem,env(safe-area-inset-bottom))] pt-[max(1rem,env(safe-area-inset-top))] text-stone-100 sm:px-8">
       <div
@@ -485,6 +501,9 @@ export function HomePage() {
         <div className="flex items-center justify-between gap-4">
           <span className="text-sm font-semibold tracking-[0.3em]">
             DECKORA
+          </span>
+          <span className="text-xs text-stone-400">
+            {nicknameSession.user.nickname}
           </span>
           <SoundToggle />
           <ResetProgress

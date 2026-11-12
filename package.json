@@ -13,6 +13,8 @@
   },
   "dependencies": {
     "@firebase/app": "^0.16.6",
+    "@firebase/auth": "^1.13.10",
+    "@firebase/firestore": "^4.20.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "howler": "^2.2.4",
