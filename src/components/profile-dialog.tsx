@@ -1,6 +1,7 @@
 import { useRef, useState, type FormEvent } from 'react';
 import { closeDialogOnBackdropClick } from '../utils/dialog';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 type ProfileDialogProps = {
   email: string;
@@ -77,7 +78,7 @@ export function ProfileDialog({
             className="block text-sm text-stone-300"
           >
             Nickname
-            <input
+            <Input
               id="profile-nickname"
               name="nickname"
               type="text"
@@ -90,7 +91,7 @@ export function ProfileDialog({
               spellCheck={false}
               value={editedNickname}
               onChange={(event) => setEditedNickname(event.target.value)}
-              className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+              className="mt-1"
             />
           </label>
           {error && (

@@ -12,6 +12,7 @@ import type {
   ConsumableId,
   ConsumablePurchases,
 } from '../types/consumable';
+import { Select } from './ui/select';
 
 type ShopProps = {
   balance: number;
@@ -130,7 +131,7 @@ export function Shop({
                   >
                     Card payment: 1 {rarity} card
                   </label>
-                  <select
+                  <Select
                     id={`payment-${upgrade.id}`}
                     value={selectedCard?.id ?? ''}
                     disabled={!hasCard}
@@ -140,7 +141,7 @@ export function Shop({
                         [upgrade.id]: event.target.value,
                       }))
                     }
-                    className="mt-2 w-full rounded-lg border border-white/15 bg-surface min-h-11 p-2 text-base text-stone-100 sm:text-sm"
+                    className="mt-2 w-full p-2 text-base sm:text-sm"
                   >
                     {availableCards.length === 0 && (
                       <option value="">No {rarity} cards available</option>
@@ -150,7 +151,7 @@ export function Shop({
                         {card.name} ({collection[card.id]})
                       </option>
                     ))}
-                  </select>
+                  </Select>
                   <p className="mt-2 text-stone-400">
                     One copy of the selected card will be consumed.
                   </p>

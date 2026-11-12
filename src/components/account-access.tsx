@@ -1,5 +1,6 @@
 import { useState, type FormEvent } from 'react';
 import { Button } from './ui/button';
+import { Input } from './ui/input';
 
 type AccountAccessProps = {
   status: 'loading' | 'signedOut' | 'profileRequired' | 'error';
@@ -92,7 +93,7 @@ export function AccountAccess({
             </p>
             <label htmlFor="nickname" className="block text-sm text-stone-300">
               Nickname
-              <input
+              <Input
                 id="nickname"
                 name="nickname"
                 type="text"
@@ -105,7 +106,7 @@ export function AccountAccess({
                 spellCheck={false}
                 value={nickname}
                 onChange={(event) => setNickname(event.target.value)}
-                className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+                className="mt-1"
               />
             </label>
             {actionError && (
@@ -164,7 +165,7 @@ export function AccountAccess({
               )}
               <label htmlFor="email" className="block text-sm text-stone-300">
                 Email
-                <input
+                <Input
                   id="email"
                   name="email"
                   type="email"
@@ -175,7 +176,7 @@ export function AccountAccess({
                   spellCheck={false}
                   value={email}
                   onChange={(event) => setEmail(event.target.value)}
-                  className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+                  className="mt-1"
                 />
                 {mode === 'register' && (
                   <p className="text-xs text-stone-500">
@@ -189,7 +190,7 @@ export function AccountAccess({
                 className="block text-sm text-stone-300"
               >
                 Password
-                <input
+                <Input
                   id="password"
                   name="password"
                   type="password"
@@ -201,7 +202,7 @@ export function AccountAccess({
                   }
                   value={password}
                   onChange={(event) => setPassword(event.target.value)}
-                  className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+                  className="mt-1"
                 />
                 {mode === 'register' && (
                   <p className="text-xs text-stone-500">
@@ -216,7 +217,7 @@ export function AccountAccess({
                   className="block text-sm text-stone-300"
                 >
                   Nickname
-                  <input
+                  <Input
                     id="nickname"
                     name="nickname"
                     type="text"
@@ -229,7 +230,7 @@ export function AccountAccess({
                     spellCheck={false}
                     value={nickname}
                     onChange={(event) => setNickname(event.target.value)}
-                    className="mt-1 min-h-11 w-full rounded-lg border border-white/15 bg-white/5 px-3 text-base text-stone-100 focus-visible:outline-2 focus-visible:outline-amber-200"
+                    className="mt-1"
                   />
                   {mode === 'register' && (
                     <p className="text-xs text-stone-500">Display name</p>

@@ -34,7 +34,6 @@ src/
   assets/         Images and other imported assets
   components/     Shared reusable components
     ui/           Common UI primitives styled with CVA
-  routes/         Page components
   types/          Types shared by multiple components
   constants/      Constants shared across the application
   App.tsx         Application entry component
@@ -43,6 +42,6 @@ src/
 
 Keep types and constants close to their owner until multiple components need them. Then move them to the shared folders at the source root (`src/`).
 
-`src/components/ui/button.tsx` provides primary/secondary variants and sm/md/lg sizes. Its `className` supports Tailwind overrides through `tailwind-merge`.
+`src/components/ui/button.tsx` provides primary/secondary variants and sm/md/lg sizes. Its `className` supports Tailwind overrides through `tailwind-merge`. The `input.tsx` and `select.tsx` primitives provide shared form-control styling.
 
 Tailwind uses the official Vite plugin: https://tailwindcss.com/docs/installation/using-vite
