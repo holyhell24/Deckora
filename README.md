@@ -27,7 +27,9 @@ previously deployed Cloud Functions must be removed separately. Game progress
 is stored in Firestore per signed-in account. A pre-existing browser save is
 imported when the account has no cloud save. Only the current click count and
 target are mirrored in local storage; theme and sound preferences remain on
-the device. Firestore client access is restricted by `firestore.rules`.
+the device. Spectral gifts are sent by nickname; sending removes one copy from
+the sender, and the recipient can claim the card from their gift inbox to add it
+to their collection. Firestore client access is restricted by `firestore.rules`.
 
 ## Structure
 

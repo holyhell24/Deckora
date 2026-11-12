@@ -5,6 +5,7 @@ import { ThemeSelector } from './components/theme-selector';
 import { SoundToggle } from './components/sound-toggle';
 import { initializeSounds, playRevealSound, playSound } from './utils/sounds';
 import { Collection } from './components/collection';
+import { SpectralGifts } from './components/spectral-gifts';
 import type { CollectionCounts } from './types/collection';
 import { Button } from './components/ui/button';
 import { Shop } from './components/shop';
@@ -32,6 +33,7 @@ import {
   loadOrMigrateGame,
   saveGameToFirestore,
 } from './utils/firestore-game-storage';
+import { claimSpectralGift, sendSpectralGift } from './utils/spectral-gifts';
 import {
   BOOST_CLICKS,
   CONSUMABLES,
@@ -149,15 +151,37 @@ export default function App() {
     gameLoadState?.status === 'ready' &&
     gameLoadState.uid === accountUid &&
     gameLoadState.attempt === gameLoadAttempt;
+  const loadedGameKey =
+    gameIsLoaded && accountUid ? `${accountUid}:${gameLoadAttempt}` : null;
   const obtained = currentCount >= requiredClicks;
-  const [revealAnimationComplete, setRevealAnimationComplete] = useState(true);
+  const [revealAnimation, setRevealAnimation] = useState<{
+    gameKey: string | null;
+    complete: boolean;
+  }>({ gameKey: null, complete: true });
+  const revealAnimationComplete =
+    loadedGameKey === null ||
+    revealAnimation.gameKey !== loadedGameKey ||
+    revealAnimation.complete;
   const previousObtained = useRef(obtained);
+  const previousLoadedGameKey = useRef<string | null>(null);
   useLayoutEffect(() => {
+    if (!loadedGameKey) {
+      previousObtained.current = obtained;
+      previousLoadedGameKey.current = null;
+      return;
+    }
+
+    if (previousLoadedGameKey.current !== loadedGameKey) {
+      previousObtained.current = obtained;
+      previousLoadedGameKey.current = loadedGameKey;
+      return;
+    }
+
     if (obtained !== previousObtained.current) {
       previousObtained.current = obtained;
-      setRevealAnimationComplete(!obtained);
+      setRevealAnimation({ gameKey: loadedGameKey, complete: !obtained });
     }
-  }, [obtained]);
+  }, [loadedGameKey, obtained]);
   const sparkBoost = progress.boosts.sparkClicks > 0;
   const focusBoost = progress.boosts.focusClicks > 0;
   const progressPerClick =
@@ -171,6 +195,69 @@ export default function App() {
     (sum, count) => sum + count,
     0,
   );
+  function getCurrentSavedGame(): SavedGame {
+    return {
+      version: 1,
+      cardId: card.id,
+      currentCount,
+      sparks,
+      completedRounds,
+      requiredClicks,
+      levels,
+      cardRequirements: progress.cardRequirements,
+      collection: progress.collection,
+      boosts: progress.boosts,
+      consumablePurchases: progress.consumablePurchases,
+    };
+  }
+
+  async function handleSendSpectralGift(
+    recipientNickname: string,
+    cardId: string,
+    expectedOwnedCount: number,
+  ) {
+    if (
+      !accountUid ||
+      !gameIsLoaded ||
+      accountSession.account.status !== 'ready'
+    ) {
+      throw new Error('Your game is still loading. Please try again.');
+    }
+
+    const remainingCount = await sendSpectralGift({
+      senderUid: accountUid,
+      senderNickname: accountSession.account.profile.nickname,
+      recipientNickname,
+      cardId,
+      expectedOwnedCount,
+      validCardIds: CARDS.map((item) => item.id),
+    });
+    setProgress((previous) => ({
+      ...previous,
+      collection: { ...previous.collection, [cardId]: remainingCount },
+    }));
+  }
+
+  async function handleClaimSpectralGift(giftId: string) {
+    if (!accountUid || !gameIsLoaded) {
+      throw new Error('Your game is still loading. Please try again.');
+    }
+
+    const claimedGift = await claimSpectralGift({
+      giftId,
+      recipientUid: accountUid,
+      baseSave: getCurrentSavedGame(),
+      validCardIds: CARDS.map((item) => item.id),
+    });
+    setProgress((previous) => ({
+      ...previous,
+      collection: {
+        ...previous.collection,
+        [claimedGift.cardId]: claimedGift.collectionCount,
+      },
+    }));
+  }
+
   const previousAudioState = useRef({
     obtained,
     completedRounds,
@@ -778,6 +865,13 @@ export default function App() {
         <div className="flex w-full flex-col items-center gap-3 sm:w-auto sm:flex-row">
           <div className="flex items-center justify-center gap-2 sm:gap-3">
             <ThemeSelector />
+            <SpectralGifts
+              uid={accountSession.account.profile.uid}
+              nickname={accountSession.account.profile.nickname}
+              counts={progress.collection}
+              onSend={handleSendSpectralGift}
+              onClaim={handleClaimSpectralGift}
+            />
             <Collection
               counts={progress.collection}
               onExchange={exchangeCards}
@@ -824,7 +918,11 @@ export default function App() {
             requiredClicks={requiredClicks}
             disabled={!revealAnimationComplete}
             onClick={handleCardClick}
-            onRevealAnimationEnd={() => setRevealAnimationComplete(true)}
+            onRevealAnimationEnd={() => {
+              if (loadedGameKey) {
+                setRevealAnimation({ gameKey: loadedGameKey, complete: true });
+              }
+            }}
           />
 
           <div className="mt-6 w-full max-w-xs">

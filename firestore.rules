@@ -132,6 +132,75 @@ service cloud.firestore {
         && data.consumablePurchases['reveal-dust'] >= 0;
     }
 
+    function validGiftCardId(cardId) {
+      return cardId is string
+        && cardId.matches('^(00[1-9]|0[1-4][0-9]|050)$');
+    }
+
+    function validSpectralGift(data) {
+      return data.keys().hasOnly([
+          'senderUid',
+          'senderNickname',
+          'recipientUid',
+          'recipientNickname',
+          'cardId',
+          'createdAt'
+        ])
+        && data.keys().hasAll([
+          'senderUid',
+          'senderNickname',
+          'recipientUid',
+          'recipientNickname',
+          'cardId',
+          'createdAt'
+        ])
+        && data.senderUid is string
+        && validNickname(data.senderNickname)
+        && data.recipientUid is string
+        && data.senderUid != data.recipientUid
+        && validNickname(data.recipientNickname)
+        && validGiftCardId(data.cardId)
+        && data.createdAt is timestamp;
+    }
+
+    function senderDeductedGiftCard(senderUid, recipientUid, cardId) {
+      let senderPath = /databases/$(database)/documents/gameSaves/$(senderUid);
+      let previousSave = get(senderPath).data;
+      let nextSave = getAfter(senderPath).data;
+      let previousCount = previousSave.collection.get(cardId, 0);
+      let nextCount = nextSave.collection.get(cardId, 0);
+      return senderUid == request.auth.uid
+        && senderUid != recipientUid
+        && previousCount is int
+        && previousCount > 0
+        && nextCount is int
+        && nextCount == previousCount - 1
+        && nextSave.collection.diff(previousSave.collection)
+          .affectedKeys().hasOnly([cardId])
+        && nextSave.diff(previousSave).affectedKeys().hasOnly(['collection']);
+    }
+
+    function recipientReceivedGiftCard(recipientUid, cardId) {
+      let recipientPath = /databases/$(database)/documents/gameSaves/$(recipientUid);
+      let recipientSaveExists = exists(recipientPath);
+      let previousSave = recipientSaveExists ? get(recipientPath).data : null;
+      let nextSave = getAfter(recipientPath).data;
+      let previousCount = recipientSaveExists
+        ? previousSave.collection.get(cardId, 0)
+        : 0;
+      let nextCount = nextSave.collection.get(cardId, 0);
+      return nextCount is int
+        && (
+          recipientSaveExists
+            ? previousCount is int
+              && nextCount == previousCount + 1
+              && nextSave.collection.diff(previousSave.collection)
+                .affectedKeys().hasOnly([cardId])
+              && nextSave.diff(previousSave).affectedKeys().hasOnly(['collection'])
+            : nextCount == 1
+        );
+    }
+
     match /users/{userId} {
       allow get: if signedIn() && request.auth.uid == userId;
       allow list: if false;
@@ -180,6 +249,39 @@ service cloud.firestore {
         && request.auth.uid == userId
         && validGameSave(request.resource.data);
       allow delete: if false;
+    }
+
+    match /spectralGifts/{giftId} {
+      allow get: if signedIn()
+        && (
+          resource.data.senderUid == request.auth.uid
+          || resource.data.recipientUid == request.auth.uid
+        );
+      allow list: if signedIn()
+        && resource.data.recipientUid == request.auth.uid;
+      allow create: if signedIn()
+        && validSpectralGift(request.resource.data)
+        && request.resource.data.createdAt == request.time
+        && request.resource.data.senderUid == request.auth.uid
+        && get(
+          /databases/$(database)/documents/users/$(request.auth.uid)
+        ).data.nickname == request.resource.data.senderNickname
+        && get(
+          /databases/$(database)/documents/nicknameClaims/$(request.resource.data.recipientNickname.lower())
+        ).data.uid == request.resource.data.recipientUid
+        && senderDeductedGiftCard(
+          request.resource.data.senderUid,
+          request.resource.data.recipientUid,
+          request.resource.data.cardId
+        );
+      allow update: if false;
+      allow delete: if signedIn()
+        && validSpectralGift(resource.data)
+        && resource.data.recipientUid == request.auth.uid
+        && recipientReceivedGiftCard(
+          resource.data.recipientUid,
+          resource.data.cardId
+        );
     }
 
     match /{document=**} {
