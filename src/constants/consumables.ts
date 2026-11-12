@@ -1,5 +1,5 @@
 export const BOOST_CLICKS = 100;
-export const CONSUMABLE_PRICE_GROWTH = 1.5;
+export const CONSUMABLE_PRICE_GROWTH = 1.2;
 export const getConsumableCost = (baseCost: number, purchases: number) =>
   Math.ceil(baseCost * CONSUMABLE_PRICE_GROWTH ** purchases);
 export const CONSUMABLES = [

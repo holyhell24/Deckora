@@ -1,5 +1,13 @@
 import type { Rarity } from '../types/card';
 
+export const RARITIES: readonly Rarity[] = [
+  'White',
+  'Green',
+  'Blue',
+  'Purple',
+  'Gold',
+];
+
 // Relative weights: these total 100, so each value is also its percentage.
 export const RARITY_WEIGHTS = {
   White: 65,

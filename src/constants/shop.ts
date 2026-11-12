@@ -1,13 +1,14 @@
 import type { UpgradeId, UpgradeLevels } from '../types/upgrade';
 import type { Rarity } from '../types/card';
+import { RARITIES } from './rarities';
 
-const UPGRADE_CARD_TIERS: readonly Rarity[] = [
-  'White',
-  'Green',
-  'Blue',
-  'Purple',
-  'Gold',
-];
+const UPGRADE_CARD_START_LEVEL = 10;
+const UPGRADE_CARD_CHANCE = 0.5;
+const UPGRADE_LEVELS_PER_CARD_TIER = 10;
+const FORTUNE_CURRENCY_PER_LEVEL = 2;
+const CRITICAL_CHANCE_PER_LEVEL = 0.05;
+const MAX_CRITICAL_CHANCE = 0.5;
+const MASTERY_TARGET_MULTIPLIER = 0.9;
 
 export const AUTO_REWARD_PER_LEVEL = 5;
 export const PROGRESS_REWARD_PER_LEVEL = 2;
@@ -15,31 +16,27 @@ export const SHOP_COST_MULTIPLIER = 1.2;
 
 // `level` is the currently owned level; card requirements begin at level 10.
 export function getUpgradeCardRarity(level: number): Rarity | null {
-  if (level < 10) {
+  if (level < UPGRADE_CARD_START_LEVEL) {
     return null;
   }
 
-  if (Math.random() >= 0.5) {
+  if (Math.random() >= UPGRADE_CARD_CHANCE) {
     return null;
   }
 
-  return UPGRADE_CARD_TIERS[Math.min(Math.floor(level / 10) - 1, 4)];
+  const tierIndex = Math.floor(level / UPGRADE_LEVELS_PER_CARD_TIER) - 1;
+  return RARITIES[Math.min(tierIndex, RARITIES.length - 1)];
 }
 
-export function getUpgradeCardRequirements(
-  levels: UpgradeLevels,
-): Record<UpgradeId, Rarity | null> {
-  return {
-    power: getUpgradeCardRarity(levels.power),
-    progress: getUpgradeCardRarity(levels.progress),
-    mastery: getUpgradeCardRarity(levels.mastery),
-    fortune: getUpgradeCardRarity(levels.fortune),
-    critical: getUpgradeCardRarity(levels.critical),
-    auto: getUpgradeCardRarity(levels.auto),
-  };
-}
+type UpgradeDefinition = {
+  id: UpgradeId;
+  name: string;
+  description: string;
+  baseCost: number;
+  maxLevel?: number;
+};
 
-export const UPGRADES = [
+export const UPGRADES: readonly UpgradeDefinition[] = [
   {
     id: 'auto',
     name: 'Arcane Familiar',
@@ -56,7 +53,7 @@ export const UPGRADES = [
   {
     id: 'fortune',
     name: 'Spark Collector',
-    description: '+2 currency per click per level, without changing progress.',
+    description: `+${FORTUNE_CURRENCY_PER_LEVEL} currency per click per level, without changing progress.`,
     baseCost: 20,
   },
   {
@@ -68,9 +65,9 @@ export const UPGRADES = [
   {
     id: 'critical',
     name: 'Resonant Touch',
-    description:
-      '+5% chance per level for double progress and currency on a click. Maximum 50%.',
+    description: `+${CRITICAL_CHANCE_PER_LEVEL * 100}% chance per level for double progress and currency on a click. Maximum ${MAX_CRITICAL_CHANCE * 100}%.`,
     baseCost: 1000,
+    maxLevel: 10,
   },
   {
     id: 'mastery',
@@ -78,18 +75,30 @@ export const UPGRADES = [
     description:
       'Reduce future unlock targets by 10% per level. Applies to the next card.',
     baseCost: 1000,
+    maxLevel: 10,
   },
-] as const satisfies readonly {
-  id: UpgradeId;
-  name: string;
-  description: string;
-  baseCost: number;
-}[];
+];
+
+export const UPGRADE_IDS: readonly UpgradeId[] = UPGRADES.map(
+  (upgrade) => upgrade.id,
+);
+
+export function getUpgradeCardRequirements(
+  levels: UpgradeLevels,
+): Record<UpgradeId, Rarity | null> {
+  return Object.fromEntries(
+    UPGRADES.map((upgrade) => [
+      upgrade.id,
+      getUpgradeCardRarity(levels[upgrade.id]),
+    ]),
+  ) as Record<UpgradeId, Rarity | null>;
+}
 
 export const getUpgradeCost = (baseCost: number, level: number) =>
   Math.ceil(baseCost * SHOP_COST_MULTIPLIER ** level);
 
-export const getCriticalChance = (level: number) => Math.min(level * 0.05, 0.5);
+export const getCriticalChance = (level: number) =>
+  Math.min(level * CRITICAL_CHANCE_PER_LEVEL, MAX_CRITICAL_CHANCE);
 
 export function getUpgradeEffect(id: UpgradeId, level: number): string {
   switch (id) {
@@ -100,9 +109,9 @@ export function getUpgradeEffect(id: UpgradeId, level: number): string {
     case 'power':
       return `${level + 1} progress and base currency per click`;
     case 'mastery':
-      return `${Math.round((1 - 0.9 ** level) * 100)}% target reduction`;
+      return `${Math.round((1 - MASTERY_TARGET_MULTIPLIER ** level) * 100)}% target reduction`;
     case 'fortune':
-      return `+${level * 2} bonus currency per click`;
+      return `+${level * FORTUNE_CURRENCY_PER_LEVEL} bonus currency per click`;
     case 'progress':
       return `+${level * PROGRESS_REWARD_PER_LEVEL} bonus progress per click`;
     case 'critical':

@@ -85,8 +85,7 @@ export function Shop({
           const cost = getUpgradeCost(upgrade.baseCost, level);
           const affordable = balance >= cost;
           const maxed =
-            (upgrade.id === 'critical' && level >= 10) ||
-            (upgrade.id === 'mastery' && level >= 10);
+            upgrade.maxLevel !== undefined && level >= upgrade.maxLevel;
           const rarity = cardRequirements[upgrade.id];
           const availableCards = CARDS.filter(
             (card) => card.rarity === rarity && collection[card.id] > 0,

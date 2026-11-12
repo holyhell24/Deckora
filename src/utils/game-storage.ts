@@ -1,24 +1,12 @@
 import type { SavedGame } from '../types/save';
-import type { Rarity } from '../types/card';
-import type { UpgradeId } from '../types/upgrade';
-import { getUpgradeCardRequirements } from '../constants/shop';
+import {
+  getUpgradeCardRequirements,
+  UPGRADES,
+  UPGRADE_IDS,
+} from '../constants/shop';
+import { RARITIES } from '../constants/rarities';
 
 export const SAVE_KEY = 'deckora.save.v1';
-const UPGRADE_IDS: readonly UpgradeId[] = [
-  'power',
-  'progress',
-  'mastery',
-  'fortune',
-  'critical',
-  'auto',
-];
-const CARD_RARITIES: readonly Rarity[] = [
-  'White',
-  'Green',
-  'Blue',
-  'Purple',
-  'Gold',
-];
 
 const isCount = (value: unknown): value is number =>
   typeof value === 'number' && Number.isSafeInteger(value) && value >= 0;
@@ -58,8 +46,13 @@ export function parseSavedGame(
       return null;
     }
 
-    if (save.levels.critical > 10) {
-      return null;
+    for (const upgrade of UPGRADES) {
+      if (
+        upgrade.maxLevel !== undefined &&
+        save.levels[upgrade.id] > upgrade.maxLevel
+      ) {
+        return null;
+      }
     }
 
     if (
@@ -70,7 +63,7 @@ export function parseSavedGame(
         !UPGRADE_IDS.every(
           (id) =>
             save.cardRequirements[id] === null ||
-            CARD_RARITIES.includes(save.cardRequirements[id]),
+            RARITIES.includes(save.cardRequirements[id]),
         ))
     ) {
       return null;

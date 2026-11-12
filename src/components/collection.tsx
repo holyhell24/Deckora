@@ -6,14 +6,8 @@ import type { CollectionCounts } from '../types/collection';
 import { Button } from './ui/button';
 import { CardExchange } from './card-exchange';
 import { EXCHANGE_CARD_COUNT, NEXT_RARITY } from '../constants/exchange';
-
-const RARITIES: readonly Rarity[] = [
-  'White',
-  'Green',
-  'Blue',
-  'Purple',
-  'Gold',
-];
+import { RARITIES } from '../constants/rarities';
+import { closeDialogOnBackdropClick } from '../utils/dialog';
 
 export function Collection({
   counts,
@@ -57,21 +51,7 @@ export function Collection({
         id="collection-dialog"
         aria-labelledby="collection-heading"
         className="fixed inset-0 m-auto h-dvh max-h-none w-full max-w-4xl overscroll-contain overflow-y-auto rounded-none sm:h-auto sm:max-h-[90dvh] sm:w-[calc(100%-2rem)] sm:rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
-        onClick={(event) => {
-          if (event.target !== event.currentTarget) {
-            return;
-          }
-
-          const bounds = event.currentTarget.getBoundingClientRect();
-          if (
-            event.clientX < bounds.left ||
-            event.clientX > bounds.right ||
-            event.clientY < bounds.top ||
-            event.clientY > bounds.bottom
-          ) {
-            dialogRef.current?.close();
-          }
-        }}
+        onClick={closeDialogOnBackdropClick}
       >
         <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-6">
           <div>

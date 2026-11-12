@@ -30,6 +30,7 @@ import {
 } from '../constants/consumables';
 import type { ConsumableId } from '../types/consumable';
 import { ResetProgress } from '../components/reset-progress';
+import { closeDialogOnBackdropClick } from '../utils/dialog';
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS);
@@ -341,7 +342,10 @@ export function HomePage() {
         return previous;
       }
 
-      if (id === 'critical' && previous.levels.critical >= 10) {
+      if (
+        upgrade.maxLevel !== undefined &&
+        previous.levels[id] >= upgrade.maxLevel
+      ) {
         return previous;
       }
 
@@ -481,21 +485,7 @@ export function HomePage() {
             id="reset-progress-dialog"
             aria-labelledby="reset-progress-heading"
             className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 m-0 max-w-md overflow-y-auto rounded-xl border border-white/10 bg-surface text-stone-100 backdrop:bg-black/70 backdrop:backdrop-blur-sm"
-            onClick={(event) => {
-              if (event.target !== event.currentTarget) {
-                return;
-              }
-
-              const bounds = event.currentTarget.getBoundingClientRect();
-              if (
-                event.clientX < bounds.left ||
-                event.clientX > bounds.right ||
-                event.clientY < bounds.top ||
-                event.clientY > bounds.bottom
-              ) {
-                resetProgressRef.current?.close();
-              }
-            }}
+            onClick={closeDialogOnBackdropClick}
           >
             <div>
               <p className="m-2 text-center text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">
@@ -697,21 +687,7 @@ export function HomePage() {
         id="shop-dialog"
         aria-labelledby="shop-heading"
         className="shop-drawer fixed inset-y-0 left-auto right-0 m-0 h-dvh max-h-none overscroll-contain w-full max-w-md overflow-y-auto border-l border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
-        onClick={(event) => {
-          if (event.target !== event.currentTarget) {
-            return;
-          }
-
-          const bounds = event.currentTarget.getBoundingClientRect();
-          if (
-            event.clientX < bounds.left ||
-            event.clientX > bounds.right ||
-            event.clientY < bounds.top ||
-            event.clientY > bounds.bottom
-          ) {
-            shopRef.current?.close();
-          }
-        }}
+        onClick={closeDialogOnBackdropClick}
       >
         <div className="relative min-h-full pb-[env(safe-area-inset-bottom)]">
           <div className="sticky top-0 z-10 flex items-center justify-between border-b border-white/10 bg-surface px-4 pb-3 pt-[max(0.75rem,env(safe-area-inset-top))]">
