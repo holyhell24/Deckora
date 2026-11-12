@@ -12,13 +12,19 @@ npm run dev
 `npm run build` checks TypeScript and builds for production. `npm run lint` runs Oxlint. `npm run preview` serves the production build locally.
 
 Firebase is initialized from the project configuration in `src/firebase.ts`.
-The app uses anonymous Firebase Authentication and Firestore to claim a
-case-insensitive, unique nickname. Enable Anonymous sign-in in Firebase
-Authentication, create a Firestore database, then deploy the rules with
-`firebase deploy --project deckora-c8b26 --only firestore:rules`. Nicknames
-are saved in lowercase so uniqueness is case-insensitive. Firebase web
-configuration values are public client identifiers; Firestore access is
-restricted by `firestore.rules`.
+Create a Firestore database and deploy the rules and account functions with
+`npx firebase-tools deploy --project deckora-c8b26 --only firestore:rules,functions`.
+If prompted to authenticate first, run `npx firebase-tools login`.
+Cloud Functions deployment requires the Firebase project to use the Blaze
+plan. The app uses a username, password, and separate nickname; usernames and
+nicknames are unique without regard to capitalization, while nickname casing
+is preserved. Nicknames must be 3–15 letters or numbers. Passwords are stored
+as salted scrypt hashes by the trusted Functions backend. Short passwords are
+easy to guess, and there is no password-reset flow because accounts do not use
+email addresses. Existing anonymous profiles are not migrated. To automatically
+clean up the login rate-limit records, configure Firestore TTL on the
+`authRateLimits.expiresAt` field. Game progress continues to be stored locally
+in the browser. Firestore client access is restricted by `firestore.rules`.
 
 ## Structure
 

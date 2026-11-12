@@ -36,8 +36,9 @@ import {
 import type { ConsumableId } from '../types/consumable';
 import { ResetProgress } from '../components/reset-progress';
 import { closeDialogOnBackdropClick } from '../utils/dialog';
-import { useNickname } from '../hooks/use-nickname';
-import { NicknameSetup } from '../components/nickname-setup';
+import { useAccount } from '../hooks/use-account';
+import { AccountAccess } from '../components/account-access';
+import { ProfileDialog } from '../components/profile-dialog';
 
 const randomCard = () => {
   const rarities = Object.entries(RARITY_WEIGHTS);
@@ -89,7 +90,7 @@ const INITIAL_VALUES = {
 };
 
 export function HomePage() {
-  const nicknameSession = useNickname();
+  const accountSession = useAccount();
   const shopRef = useRef<HTMLDialogElement>(null);
   const resetProgressRef = useRef<HTMLDialogElement>(null);
   const [dataResetSucceeded] = useState(resetDataForRelease);
@@ -469,15 +470,24 @@ export function HomePage() {
     setProgress(INITIAL_VALUES);
   };
 
-  if (nicknameSession.user.status !== 'ready') {
+  if (accountSession.account.status !== 'ready') {
     return (
-      <NicknameSetup
-        status={nicknameSession.user.status}
-        error={nicknameSession.user.error}
-        saving={nicknameSession.saving}
-        submitError={nicknameSession.submitError}
-        onSubmit={nicknameSession.claimNickname}
-        onRetry={nicknameSession.retry}
+      <AccountAccess
+        status={accountSession.account.status}
+        error={
+          accountSession.account.status === 'error'
+            ? accountSession.account.error
+            : undefined
+        }
+        saving={accountSession.saving}
+        actionError={accountSession.actionError}
+        onLogin={(username, password) => {
+          accountSession.login({ username, password });
+        }}
+        onRegister={(username, password, nickname) => {
+          accountSession.register({ username, password, nickname });
+        }}
+        onRetry={accountSession.retry}
       />
     );
   }
@@ -503,8 +513,18 @@ export function HomePage() {
             DECKORA
           </span>
           <span className="text-xs text-stone-400">
-            {nicknameSession.user.nickname}
+            {accountSession.account.profile.nickname}
           </span>
+          <ProfileDialog
+            username={accountSession.account.profile.username}
+            nickname={accountSession.account.profile.nickname}
+            saving={accountSession.saving}
+            error={accountSession.actionError}
+            onSave={accountSession.changeNickname}
+            onSignOut={() => {
+              void accountSession.signOutAccount();
+            }}
+          />
           <SoundToggle />
           <ResetProgress
             onResetButtonClick={() => resetProgressRef.current?.showModal()}
