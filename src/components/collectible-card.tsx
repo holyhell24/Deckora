@@ -93,6 +93,12 @@ export function CollectibleCard({
           type="button"
           disabled={disabled}
           onClick={onClick}
+          onKeyDown={(event) => {
+            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+              event.preventDefault();
+              onClick();
+            }
+          }}
           onAnimationEnd={handleAnimationEnd}
           aria-label={
             disabled

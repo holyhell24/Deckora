@@ -829,15 +829,23 @@ export default function App() {
             ref={resetProgressRef}
             id="reset-progress-dialog"
             aria-labelledby="reset-progress-heading"
-            className="fixed left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 m-0 max-w-md overflow-y-auto rounded-xl border border-white/10 bg-surface text-stone-100 backdrop:bg-black/70 backdrop:backdrop-blur-sm"
+            className="fixed inset-0 m-auto h-fit max-h-[90dvh] w-[calc(100%-2rem)] max-w-md overscroll-contain overflow-y-auto rounded-2xl border border-white/10 bg-surface p-0 text-stone-100 shadow-2xl backdrop:bg-black/70 backdrop:backdrop-blur-sm"
             onClick={closeDialogOnBackdropClick}
           >
-            <div>
-              <p className="m-2 text-center text-[10px] font-medium uppercase tracking-[0.35em] text-stone-400">
+            <div className="sticky top-0 z-10 flex items-start justify-between gap-4 border-b border-white/10 bg-surface px-4 pb-4 pt-[max(1rem,env(safe-area-inset-top))] sm:p-6">
+              <h2
+                id="reset-progress-heading"
+                className="font-serif text-2xl sm:text-3xl"
+              >
+                Reset progress
+              </h2>
+            </div>
+            <div className="space-y-4 p-4 sm:p-6">
+              <p className="text-sm text-stone-300">
                 Are you sure you want to reset your progress? This action cannot
                 be undone.
               </p>
-              <div className="flex items-center justify-center gap-4 p-4">
+              <div className="flex justify-end gap-3">
                 <Button
                   aria-label="Yes"
                   className="cursor-pointer border-white/15 bg-white/5 text-stone-100 hover:bg-white/10"

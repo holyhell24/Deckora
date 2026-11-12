@@ -63,14 +63,6 @@ export function ProfileDialog({
               Signed in as <span className="text-stone-200">{email}</span>
             </p>
           </div>
-          <Button
-            size="sm"
-            aria-label="Close profile"
-            className="cursor-pointer bg-white/5 hover:bg-white/10"
-            onClick={() => dialogRef.current?.close()}
-          >
-            Close
-          </Button>
         </div>
         <form onSubmit={handleSubmit} className="space-y-4 p-4 sm:p-6">
           <label
