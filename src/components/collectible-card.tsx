@@ -91,12 +91,11 @@ export function CollectibleCard({
       >
         <button
           type="button"
-          disabled={disabled}
+          aria-disabled={disabled}
           onClick={onClick}
           onKeyDown={(event) => {
-            if (event.key === 'ArrowLeft' || event.key === 'ArrowRight') {
+            if (disabled && (event.key === 'Enter' || event.key === ' ')) {
               event.preventDefault();
-              onClick();
             }
           }}
           onAnimationEnd={handleAnimationEnd}
@@ -107,7 +106,7 @@ export function CollectibleCard({
                 ? `${card.name} obtained. Click to discover another card`
                 : 'Click to uncover the hidden card'
           }
-          className={`relative block w-full touch-manipulation select-none overflow-hidden rounded-2xl shadow-[0_24px_80px_#0008] transition-transform duration-150 enabled:cursor-pointer enabled:active:scale-[0.97] focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-stone-200 motion-reduce:transform-none motion-reduce:transition-none ${revealClass}`}
+          className={`relative block w-full touch-manipulation select-none overflow-hidden rounded-2xl shadow-[0_24px_80px_#0008] transition-transform duration-150 cursor-pointer active:scale-[0.97] aria-disabled:cursor-wait focus-visible:outline-2 focus-visible:outline-offset-8 focus-visible:outline-stone-200 motion-reduce:transform-none motion-reduce:transition-none ${revealClass}`}
         >
           <img
             src={face}
