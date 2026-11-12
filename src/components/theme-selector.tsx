@@ -22,12 +22,16 @@ export function ThemeSelector() {
   }, [theme]);
 
   return (
-    <label className="flex items-center gap-2 text-xs text-stone-400">
+    <label
+      className="flex items-center gap-2 text-xs text-stone-400"
+      htmlFor="theme-selector"
+    >
       Theme
       <Select
+        id="theme-selector"
         value={theme}
         onChange={(event) => setTheme(event.target.value as ThemeId)}
-        className="h-11 max-w-32 cursor-pointer"
+        className="h-11 flex-1 cursor-pointer"
       >
         {THEMES.map((item) => (
           <option key={item.id} value={item.id}>
